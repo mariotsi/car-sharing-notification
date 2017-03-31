@@ -59,10 +59,16 @@ jwtClient.authorize((err, tokens) => {
 });
 
 function handleNewMessage(messageId) {
-  getEmail(messageId).then(extractData, data => {
-    db.ref(`emailIds/${data.id}`).set({ error: 'No body found', data: data });
-  });
+  getEmail(messageId)
+    .then(extractData, data => {
+      db.ref(`emailIds/${data.id}`).set({ error: 'No body found', data: data });
+    })
+    .then(sendNotification, data => db.ref(`emailIds/${data.id}`).set(data));
 }
+
+const sendNotification = parsedData => { 
+  
+};
 
 const getEmail = emailId =>
   new Promise((resolve, reject) => {
@@ -90,7 +96,7 @@ const getEmail = emailId =>
     })
   })
 
-const extractData = data => {
+const extractData = data => new Promise((resolve, reject) => {
   let strategy = /@(.+)\..*/.exec(data.sender.value)[1];
   let regexs;
   const parsedData = {};
@@ -108,13 +114,15 @@ const extractData = data => {
   }
   if (Object.keys(parsedData).length) {
     parsedData.longName = strategyMap[strategy].longName;
+    parsedData.id = data.id;
+    return resolve(parsedData);
     db.ref(`emailIds/${data.id}`).set(parsedData);
   } else if (!parsedData.total) {
-    db.ref(`emailIds/${data.id}`).set({ error: 'No total found', parsedData: parsedData, longName: strategyMap[strategy].longName });
+    return reject({ id: data.id, error: 'No total found', parsedData: parsedData, longName: strategyMap[strategy].longName });
   } else {
-    db.ref(`emailIds/${data.id}`).set({ error: 'No data found', data: data, longName: strategyMap[strategy].longName });
+    return reject({ id: data.id, error: 'No data found', data: data, longName: strategyMap[strategy].longName });
   }
-}
+});
 
 // cartasi => Share'n'Go
 const strategyMap = {

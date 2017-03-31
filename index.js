@@ -158,7 +158,6 @@ const parseTemplate = context => {
   return template
 }
 
-// cartasi => Share'n'Go
 const strategyMap = {
   "enjoy.eni": {
     longName: 'Enjoy',

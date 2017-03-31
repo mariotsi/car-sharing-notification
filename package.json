@@ -6,7 +6,8 @@
   "dependencies": {
     "firebase-admin": "^4.1.4",
     "google-auth-library": "^0.10.0",
-    "googleapis": "^18.0.0"
+    "googleapis": "^18.0.0",
+    "telebot": "^1.0.7"
   },
   "devDependencies": {},
   "scripts": {

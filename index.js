@@ -3,7 +3,19 @@ const admin = require("firebase-admin");
 const google = require('googleapis');
 const googleAuth = require('google-auth-library');
 const gmail = google.gmail('v1');
+const TeleBot = require('telebot');
+const bot = new TeleBot(process.env.TELEGRAM_TOKEN);
+/*bot.on('text', msg => {
+  let fromId = msg.from.id;
+  let firstName = msg.from.first_name;
+  let reply = msg.message_id;
+  return bot.sendMessage(fromId, `Welcome, ${ firstName+fromId }!`, { reply:reply+'----'+fromId });
+});*/
 
+bot.connect();
+bot.on(['/echo', ], msg => {
+  return bot.sendMessage(msg.from.id, 'Echo un cazzo!');
+});
 //Initialize Firebase
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -66,8 +78,10 @@ function handleNewMessage(messageId) {
     .then(sendNotification, data => db.ref(`emailIds/${data.id}`).set(data));
 }
 
-const sendNotification = parsedData => { 
-  
+const sendNotification = parsedData => {
+  const message = parseTemplate(parsedData);
+  bot.sendMessage(process.env.TELEGRAM_CLIENT_ID, message, { parse: 'HTML' })
+  db.ref(`emailIds/${parsedData.id}`).set(parsedData);
 };
 
 const getEmail = emailId =>
@@ -104,7 +118,7 @@ const extractData = data => new Promise((resolve, reject) => {
     let result;
     while ((result = regexs[regex].exec(data.body)) != null) {
       result.shift();
-      result[0] = result[0].replace(',', '.').replace(' ', '');
+      result[0] = result[0].replace(',', '.');
       //Sum due to double invoices in some email
       parsedData[regex] = parsedData[regex] ? (parseFloat(parsedData[regex], 10) + parseFloat(result[0], 10)).toFixed(2) : result[0];
 
@@ -112,11 +126,11 @@ const extractData = data => new Promise((resolve, reject) => {
     //resetting the Regex due to \g flag
     regexs[regex].lastIndex = 0;
   }
-  if (Object.keys(parsedData).length) {
+  if (Object.keys(parsedData).length && parsedData.total) {
     parsedData.longName = strategyMap[strategy].longName;
     parsedData.id = data.id;
+    parsedData.strategy = strategy;
     return resolve(parsedData);
-    db.ref(`emailIds/${data.id}`).set(parsedData);
   } else if (!parsedData.total) {
     return reject({ id: data.id, error: 'No total found', parsedData: parsedData, longName: strategyMap[strategy].longName });
   } else {
@@ -124,32 +138,71 @@ const extractData = data => new Promise((resolve, reject) => {
   }
 });
 
+const parseTemplate = context => {
+  let template = strategyMap[context.strategy].template;
+  if (context.total) {
+    context.total = context.total.replace('.', ',');
+  }
+  if(!!context.type && context.type.includes('MP3')){
+    //Enjoy Piaggio MP3
+     template = template.replace('🚗', '🏍').replace('l\'auto targata', 'lo scooter targato');
+  }
+  for (let key in context) {
+    template = template.replace(`#${key}#`, context[key]);
+  }
+  return template
+}
+
 // cartasi => Share'n'Go
 const strategyMap = {
   "enjoy.eni": {
     longName: 'Enjoy',
     regexs: {
-      total: /IMPORTO DA ADDEBITARE.*(\d+\,\d\d)/g
-    }
+      total: /IMPORTO DA ADDEBITARE.*(\d+\,\d\d)/g,
+      plate: /TARGA\:.*([A-Z0-9]{7})\</g,
+      type: /VEICOLO:.*>(.*)<\/font.*TARGA/g,
+      totalTime: /DURATA TOTALE:.*>(.*)<\/font.*CHILOMETRI/g,
+      distance: /CHILOMETRI PERCORSI\:.*?\>(\d+)</g
+    },
+    template: `    
+<b>#longName#</b> 🚗
+
+Hai speso #total#€ con l'auto targata <i>#plate#</i>
+Veicolo: #type#
+Durata: #totalTime#
+Distanza: #distance# km
+`
   },
   "cartasi": {
     longName: 'Share\'ngo',
     regexs: {
       total: /Importo\: EUR (\d+\.\d\d)/g
-    }
+    },
+    template: `
+<b>#longName#</b> 🔌
+
+E' stata emessa una fattura di #total#€`
   },
   "payment.car2go": {
     longName: 'Car2Go',
     regexs: {
       total: /EUR.+(\d+\,\d\d)/g
-    }
+    },
+    template: `
+<b>#longName#</b> 🚙
+
+E' stata emessa una fattura di #total#€`
   },
   "drive-now": {
     longName: 'DriveNow',
     regexs: {
       total: /(\d+\,\d\d)/g,
       plate: /([A-Z]{2}\s\d{3}[A-Z]{2})/g
-    }
+    },
+    template: `
+<b>#longName#</b>🏎
+
+Hai speso #total#€ con l'auto targata <i>#plate#</i>`
   }
 };
 

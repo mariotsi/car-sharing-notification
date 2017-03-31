@@ -4,6 +4,7 @@ const google = require('googleapis');
 const googleAuth = require('google-auth-library');
 const gmail = google.gmail('v1');
 const TeleBot = require('telebot');
+const Moment = require('moment');
 const bot = new TeleBot(process.env.TELEGRAM_TOKEN);
 /*bot.on('text', msg => {
   let fromId = msg.from.id;
@@ -13,8 +14,12 @@ const bot = new TeleBot(process.env.TELEGRAM_TOKEN);
 });*/
 
 bot.connect();
-bot.on(['/echo', ], msg => {
-  return bot.sendMessage(msg.from.id, 'Echo un cazzo!');
+bot.on(['/echo'], msg => {
+  return bot.sendMessage(msg.from.id, `Echo un cazzo!`);
+});
+
+bot.on(['/uptime'], msg => {
+  return bot.sendMessage(msg.from.id, `Sono online da ${Moment.duration(process.uptime(), 'seconds').humanize()}`);
 });
 //Initialize Firebase
 admin.initializeApp({
@@ -63,7 +68,7 @@ jwtClient.authorize((err, tokens) => {
         if (!(messageId in savedIds)) {
           //console.log('new message', messageId);
           handleNewMessage(messageId);
-          db.ref(`emailIds/${messageId}`).set('sending');
+          db.ref(`emailIds/${messageId}`).set('Processing...');
         }
       }
     });
@@ -143,9 +148,9 @@ const parseTemplate = context => {
   if (context.total) {
     context.total = context.total.replace('.', ',');
   }
-  if(!!context.type && context.type.includes('MP3')){
+  if (!!context.type && context.type.includes('MP3')) {
     //Enjoy Piaggio MP3
-     template = template.replace('🚗', '🏍').replace('l\'auto targata', 'lo scooter targato');
+    template = template.replace('🚗', '🏍').replace('l\'auto targata', 'lo scooter targato');
   }
   for (let key in context) {
     template = template.replace(`#${key}#`, context[key]);

@@ -6,6 +6,7 @@ const gmail = google.gmail('v1');
 const strategyMap = require('./strategyMap.js');
 const TeleBot = require('telebot');
 const Moment = require('moment');
+const Cron = require('node-cron');
 const bot = new TeleBot(process.env.TELEGRAM_TOKEN);
 /*bot.on('text', msg => {
   let fromId = msg.from.id;
@@ -50,7 +51,13 @@ jwtClient.authorize((err, tokens) => {
   if (err) {
     return console.log(err);
   }
+  Cron.schedule('*/5 * * * * *', function () {
+    checkNewEmails();
+  }, true);
 
+});
+
+const checkNewEmails = () => {
   emails = gmail.users.messages;
   emails.list({
     auth: jwtClient,
@@ -74,7 +81,7 @@ jwtClient.authorize((err, tokens) => {
       }
     });
   });
-});
+}
 
 function handleNewMessage(messageId) {
   getEmail(messageId)

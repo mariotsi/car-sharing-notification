@@ -109,8 +109,10 @@ const extractData = data => {
   if (Object.keys(parsedData).length) {
     parsedData.longName = strategyMap[strategy].longName;
     db.ref(`emailIds/${data.id}`).set(parsedData);
+  } else if (!parsedData.total) {
+    db.ref(`emailIds/${data.id}`).set({ error: 'No total found', parsedData: parsedData, longName: strategyMap[strategy].longName });
   } else {
-    db.ref(`emailIds/${data.id}`).set({ error: 'No data found', data: data });
+    db.ref(`emailIds/${data.id}`).set({ error: 'No data found', data: data, longName: strategyMap[strategy].longName });
   }
 }
 

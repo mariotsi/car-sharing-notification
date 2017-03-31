@@ -46,10 +46,10 @@ jwtClient.authorize((err, tokens) => {
     const messagesId = response.messages.map(message => message.id);
     let savedIds = null;
     db.ref('emailIds').once('value').then(function (snapshot) {
-      savedIds = snapshot.val();
+      savedIds = snapshot.val() || {};
       for (let messageId of messagesId) {
         if (!(messageId in savedIds)) {
-          console.log('new message', messageId);
+          //console.log('new message', messageId);
           handleNewMessage(messageId);
           db.ref(`emailIds/${messageId}`).set('sending');
         }
@@ -59,7 +59,9 @@ jwtClient.authorize((err, tokens) => {
 });
 
 function handleNewMessage(messageId) {
-  getEmail(messageId).then(extractData);
+  getEmail(messageId).then(extractData, data => {
+    db.ref(`emailIds/${data.id}`).set({ error: 'No body found', data: data });
+  });
 }
 
 const getEmail = emailId =>
@@ -74,10 +76,14 @@ const getEmail = emailId =>
         return reject(err);
       }
       let bodyData = response.payload.body.data;
-      if (!bodyData){
-       bodyData =  (response.payload.parts.find(item => item.mimeType = 'text/plain').body || {}).data;
+      if (!bodyData) {
+        bodyData = (response.payload.parts.find(item => item.mimeType = 'text/plain').body || {}).data;
+        if (!bodyData) {
+          return reject(response);
+        }
       }
       return resolve({
+        id: response.id,
         sender: response.payload.headers.find(item => item.name === 'From'),
         body: Buffer.from(bodyData, 'base64').toString()
       });
@@ -86,6 +92,54 @@ const getEmail = emailId =>
 
 const extractData = data => {
   let strategy = /@(.+)\..*/.exec(data.sender.value)[1];
-  
+  let regexs;
+  const parsedData = {};
+  for (let regex in (regexs = strategyMap[strategy].regexs)) {
+    let result;
+    while ((result = regexs[regex].exec(data.body)) != null) {
+      result.shift();
+      result[0] = result[0].replace(',', '.').replace(' ', '');
+      //Sum due to double invoices in some email
+      parsedData[regex] = parsedData[regex] ? (parseFloat(parsedData[regex], 10) + parseFloat(result[0], 10)).toFixed(2) : result[0];
+
+    }
+    //resetting the Regex due to \g flag
+    regexs[regex].lastIndex = 0;
+  }
+  if (Object.keys(parsedData).length) {
+    parsedData.longName = strategyMap[strategy].longName;
+    db.ref(`emailIds/${data.id}`).set(parsedData);
+  } else {
+    db.ref(`emailIds/${data.id}`).set({ error: 'No data found', data: data });
+  }
 }
+
+// cartasi => Share'n'Go
+const strategyMap = {
+  "enjoy.eni": {
+    longName: 'Enjoy',
+    regexs: {
+      total: /IMPORTO DA ADDEBITARE.*(\d+\,\d\d)/g
+    }
+  },
+  "cartasi": {
+    longName: 'Share\'ngo',
+    regexs: {
+      total: /Importo\: EUR (\d+\.\d\d)/g
+    }
+  },
+  "payment.car2go": {
+    longName: 'Car2Go',
+    regexs: {
+      total: /EUR.+(\d+\,\d\d)/g
+    }
+  },
+  "drive-now": {
+    longName: 'DriveNow',
+    regexs: {
+      total: /(\d+\,\d\d)/g,
+      plate: /([A-Z]{2}\s\d{3}[A-Z]{2})/g
+    }
+  }
+};
 

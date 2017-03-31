@@ -1,0 +1,34 @@
+##############
+# EDITOR FILES
+
+# webstorm
+.idea
+*.iml
+
+# eclipse
+.project
+.settings/
+
+# VS Code
+.vscode/
+jsconfig.json
+
+##############
+# NODE SERVICE
+
+# node/npm
+node_modules
+npm-debug.log
+/*.tgz
+/pkg
+.npmignore
+
+##############
+# OS WORKING FILES
+
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+._*
+*/._*
+*/*/._*

@@ -1,0 +1,17 @@
+{
+  "name": "car-sharing-notification",
+  "version": "1.0.0",
+  "description": "",
+  "main": "jwt.js",
+  "dependencies": {
+    "firebase-admin": "^4.1.4",
+    "google-auth-library": "^0.10.0",
+    "googleapis": "^18.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Simone Mariotti",
+  "license": "ISC"
+}

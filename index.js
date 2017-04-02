@@ -81,7 +81,7 @@ const checkNewEmails = () => {
       }
     });
   });
-}
+};
 
 function handleNewMessage(messageId) {
   getEmail(messageId)
@@ -121,7 +121,7 @@ const getEmail = emailId =>
         body: Buffer.from(bodyData, 'base64').toString()
       });
     })
-  })
+  });
 
 const extractData = data => new Promise((resolve, reject) => {
   let strategy = /@(.+)\..*/.exec(data.sender.value)[1];
@@ -164,7 +164,7 @@ const parseTemplate = context => {
     template = template.replace(`#${key}#`, context[key]);
   }
   return template
-}
+};
 
 
 

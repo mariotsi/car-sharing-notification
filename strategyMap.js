@@ -15,6 +15,14 @@ Hai speso #total#€ con l'auto targata <i>#plate#</i>
 Veicolo: #type#
 Durata: #totalTime#
 Distanza: #distance# km
+`,
+    templateScooter: `    
+<b>#longName#</b> 🏍
+
+Hai speso #total#€ con lo scooter targato <i>#plate#</i>
+Veicolo: #type#
+Durata: #totalTime#
+Distanza: #distance# km
 `
   },
   "cartasi": {

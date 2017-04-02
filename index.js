@@ -28,7 +28,7 @@ admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env.FIREBASE_projectId,
     clientEmail: process.env.FIREBASE_clientEmail,
-    privateKey: process.env.FIREBASE_privateKey
+    privateKey: JSON.parse(process.env.FIREBASE_privateKey)
   }),
   databaseURL: process.env.FIREBASE_databaseURL
 });
@@ -41,7 +41,7 @@ const auth = new googleAuth();
 const jwtClient = new auth.JWTClient(
   process.env.JWT_client_email,
   null,
-  process.env.JWT_private_key,
+  JSON.parse(process.env.JWT_private_key),
   // Scopes can be specified either as an array or as a single, space-delimited string
   ['https://mail.google.com/'],
   // User to impersonate (leave empty if no impersonation needed)

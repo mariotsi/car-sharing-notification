@@ -159,5 +159,11 @@ http.createServer(function (req, res) {
   console.log('Server listening on port: ', process.env.PORT);
 });
 
+setInterval(function() {
+  // Keep-Alive Heroku App
+  http.get("http://car-sharing-notification.herokuapp.com/");
+  console.log('Calling itself to keep the instance running.')
+}, 300000);
+
 
 

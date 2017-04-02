@@ -8,6 +8,7 @@ const TeleBot = require('telebot');
 const Moment = require('moment');
 const Cron = require('node-cron');
 const bot = new TeleBot(process.env.TELEGRAM_TOKEN);
+const http = require('http');
 /*bot.on('text', msg => {
   let fromId = msg.from.id;
   let firstName = msg.from.first_name;
@@ -165,6 +166,11 @@ const parseTemplate = context => {
   }
   return template
 };
+
+http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Server is up');
+}).listen(process.env.port || 5000);
 
 
 

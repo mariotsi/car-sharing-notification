@@ -86,7 +86,7 @@ const checkNewEmails = () => {
 
 function handleNewMessage(messageId) {
   getEmail(messageId)
-    .then(extractData, data => db.ref(`emailIds/${data.id}`).set({ error: 'No body found', data: data})
+    .then(extractData, data => db.ref(`emailIds/${data.id}`).set({ error: 'No body found', data: data}))
     .then(sendNotification, data => db.ref(`emailIds/${data.id}`).set(data));
 }
 

@@ -170,7 +170,9 @@ const parseTemplate = context => {
 http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end('Server is up');
-}).listen(process.env.port || 5000);
+}).listen(process.env.PORT || 5000, () => {
+    console.log('Server listening on port: ', process.env.PORT);
+});
 
 
 

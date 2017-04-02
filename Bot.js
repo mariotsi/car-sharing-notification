@@ -9,7 +9,7 @@ class Bot {
     });
 
     this.bot.on(['/uptime'], msg => {
-      return this.bot.sendMessage(msg.from.id, `Sono online da ${Moment.duration(process.uptime(), 'seconds').humanize()}`);
+      return this.bot.sendMessage(msg.from.id, `I'm online since ${Moment.duration(process.uptime(), 'seconds').humanize()}`);
     });
   }
 

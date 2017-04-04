@@ -5,11 +5,11 @@ class Bot {
     this.bot = new TeleBot(token);
     this.bot.connect();
     this.bot.on(['/echo'], msg => {
-      return this.bot.sendMessage(msg.from.id, `Echo un cazzo!`);
+      this.sendMessage(`Echo un cazzo!`, msg.from.id);
     });
 
     this.bot.on(['/uptime'], msg => {
-      return this.bot.sendMessage(msg.from.id, `I'm online since ${Moment.duration(process.uptime(), 'seconds').humanize()}`);
+      this.sendMessage(`I'm online since ${Moment.duration(process.uptime(), 'seconds').humanize()}`, msg.from.id);
     });
   }
 

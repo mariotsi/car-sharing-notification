@@ -45,6 +45,16 @@ E' stata emessa una fattura di #total#€`
 
 E' stata emessa una fattura di #total#€`
   },
+  "moovel": {
+    longName: 'Car2Go',
+    regexs: {
+      total: /EUR.+(\d+\,\d\d)/g
+    },
+    template: `
+<b>#longName#</b> 🚙
+
+E' stata emessa una fattura di #total#€`
+  },
   "drive-now": {
     longName: 'DriveNow',
     regexs: {

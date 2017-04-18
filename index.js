@@ -8,7 +8,7 @@ const BotClass = require('./Bot.js');
 const Cron = require('node-cron');
 const http = require('http');
 
-const bot = new BotClass();
+const bot = new BotClass(undefined, updateIds);
 let savedIds = null;
 //Initialize Firebase
 const FIREBASE_privateKey = parseKey(process.env.FIREBASE_privateKey);
@@ -61,7 +61,7 @@ const checkNewEmails = (pageToken) => {
 
     // Using cache after first DB Synch in order to don't exaust the free tier of Firebase DB
     if (!savedIds) {
-      db.ref('emailIds').on('value', function (snapshot) {
+      db.ref('emailIds').once('value').then(function (snapshot) {
         console.log('Getting updated Ids from DB, from now on using cache');
         savedIds = Object.keys(snapshot.val() || {}) || [];
         filterNewMessages(messagesId, response.nextPageToken);
@@ -87,7 +87,7 @@ function filterNewMessages(messagesId, nextPageToken) {
 
 function handleNewMessage(messageId) {
   getEmail(messageId)
-    .then(extractData, data => db.ref(`emailIds/${data.id}`).set({ error: 'No body found', data: data }))
+    .then(extractData, data => db.ref(`emailIds/${data.id}`).set({ error: 'No body found'}))
     .then(sendNotification, data => db.ref(`emailIds/${data.id}`).set(data));
 }
 
@@ -125,7 +125,7 @@ const getEmail = emailId =>
         date: response.payload.headers.find(item => item.name === 'Date'),
         body: Buffer.from(bodyData, 'base64').toString()
       };
-      console.log(`Email ${emailId} - Parse OK`, data);
+      console.log(`Email ${emailId} - Parse OK`);
       return resolve(data);
     })
   });
@@ -152,10 +152,10 @@ const extractData = data => new Promise((resolve, reject) => {
     parsedData.strategy = strategy;
     parsedData.sender = data.sender.value;
     parsedData.date = data.date.value;
-    console.log(`Email from ${data.sender.value} id: ${emailId} - Sending notification`, parsedData);
+    console.log(`Email from ${data.sender.value} id: ${parsedData.id} - Sending notification`, parsedData);
     return resolve(parsedData);
   } else if (!parsedData.total) {
-    console.log(`Email from ${data.sender.value} id: ${emailId} - No total found`, parsedData);
+    console.log(`Email from ${data.sender.value} id: ${data.id} - No total found`, parsedData);
     return reject({
       id: data.id,
       sender: data.sender.value,
@@ -177,6 +177,9 @@ const extractData = data => new Promise((resolve, reject) => {
 });
 
 const parseTemplate = context => {
+  if(!context){
+    return 'Errore nel parseTemplate -> context null'
+  }
   let template = strategyMap[context.strategy].template;
   if (context.total) {
     context.total = context.total.replace('.', ',');
@@ -212,3 +215,10 @@ function parseKey(key) {
     return key;
   }
 };
+function updateIds(callback) {
+  db.ref('emailIds').once('value').then(function (snapshot) {
+    console.log('FORCED - Getting updated Ids from DB, from now on using cache');
+    savedIds = Object.keys(snapshot.val() || {}) || [];
+    callback();
+  });
+}

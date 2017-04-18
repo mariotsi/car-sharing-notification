@@ -63,7 +63,7 @@ const checkNewEmails = (pageToken) => {
     if (!savedIds) {
       db.ref('emailIds').on('value', function (snapshot) {
         console.log('Getting updated Ids from DB, from now on using cache');
-        savedIds = Object.keys(snapshot.val()) || [];
+        savedIds = Object.keys(snapshot.val() || {}) || [];
         filterNewMessages(messagesId, response.nextPageToken);
       });
     } else {

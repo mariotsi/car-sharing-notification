@@ -114,7 +114,7 @@ const getEmail = emailId =>
       if (!bodyData) {
         bodyData = (response.payload.parts.find(item => item.mimeType = 'text/plain').body || {}).data;
         if (!bodyData) {
-          console.log(`Email ${emailId} - Parse KO`, data);
+          console.log(`Email ${emailId} - Parse KO`);
           return reject(response);
         }
       }

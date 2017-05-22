@@ -28,7 +28,7 @@ Distanza: #distance# km
   "cartasi": {
     longName: 'Share\'ngo',
     regexs: {
-      total: /Importo\: EUR (\d+\.\d\d)/g
+      total: /Importo\: EUR (\d+[\.\,]\d\d)/g
     },
     template: `
 <b>#longName#</b> 🔌

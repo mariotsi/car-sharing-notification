@@ -33,7 +33,7 @@ Distanza: #distance# km
     template: `
 <b>#longName#</b> 🔌
 
-E' stata emessa una fattura di #total#€`
+È stata emessa una fattura di #total#€`
   },
   "payment.car2go": {
     longName: 'Car2Go',
@@ -43,7 +43,7 @@ E' stata emessa una fattura di #total#€`
     template: `
 <b>#longName#</b> 🚙
 
-E' stata emessa una fattura di #total#€`
+È stata emessa una fattura di #total#€`
   },
   "moovel": {
     longName: 'Car2Go',
@@ -53,7 +53,7 @@ E' stata emessa una fattura di #total#€`
     template: `
 <b>#longName#</b> 🚙
 
-E' stata emessa una fattura di #total#€`
+È stata emessa una fattura di #total#€`
   },
   "drive-now": {
     longName: 'DriveNow',

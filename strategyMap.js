@@ -2,7 +2,7 @@ module.exports = {
   "enjoy.eni": {
     longName: 'Enjoy',
     regexs: {
-      total: /IMPORTO DA ADDEBITARE.*(\d+\,\d\d)/g,
+      total: /IMPORTO DA ADDEBITARE.+?(\d+\,\d{2})/g,
       plate: /TARGA\:.*([A-Z0-9]{7})\</g,
       type: /VEICOLO:.*>(.*)<\/font.*TARGA/g,
       totalTime: /DURATA TOTALE:.*>(.*)<\/font.*CHILOMETRI/g,
@@ -28,7 +28,7 @@ Distanza: #distance# km
   "cartasi": {
     longName: 'Share\'ngo',
     regexs: {
-      total: /Importo\: EUR (\d+[\.\,]\d\d)/g
+      total: /Importo\: EUR (\d+[\.\,]\d{2})/g
     },
     template: `
 <b>#longName#</b> 🔌
@@ -38,7 +38,7 @@ Distanza: #distance# km
   "payment.car2go": {
     longName: 'Car2Go',
     regexs: {
-      total: /EUR.+(\d+\,\d\d)/g
+      total: /EUR.+?(\d+\,\d{2})/g
     },
     template: `
 <b>#longName#</b> 🚙
@@ -48,7 +48,7 @@ Distanza: #distance# km
   "moovel": {
     longName: 'Car2Go',
     regexs: {
-      total: /EUR.+(\d+\,\d\d)/g
+      total: /EUR.+?(\d+\,\d{2})/g
     },
     template: `
 <b>#longName#</b> 🚙
@@ -58,7 +58,7 @@ Distanza: #distance# km
   "drive-now": {
     longName: 'DriveNow',
     regexs: {
-      total: /(\d+\,\d\d)/g,
+      total: /(\d+\,\d{2})/g,
       plate: /([A-Z]{2}\s\d{3}[A-Z]{2})/g
     },
     template: `

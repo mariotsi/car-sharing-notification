@@ -11,6 +11,9 @@
     "telebot": "^1.0.7",
     "moment": "latest"
   },
+  "engines": {
+    "node": "8.x"
+  }
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

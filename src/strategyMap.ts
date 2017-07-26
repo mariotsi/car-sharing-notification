@@ -1,5 +1,5 @@
 module.exports = {
-  "enjoy.eni": {
+  'enjoy.eni': {
     longName: 'Enjoy',
     regexs: {
       total: /IMPORTO DA ADDEBITARE.+?(\d+\,\d{2})/g,
@@ -25,8 +25,8 @@ Durata: #totalTime#
 Distanza: #distance# km
 `
   },
-  "cartasi": {
-    longName: 'Share\'ngo',
+  cartasi: {
+    longName: "Share'ngo",
     regexs: {
       total: /Importo\: EUR (\d+[\.\,]\d{2})/g
     },
@@ -35,7 +35,7 @@ Distanza: #distance# km
 
 È stata emessa una fattura di #total#€`
   },
-  "payment.car2go": {
+  'payment.car2go': {
     longName: 'Car2Go',
     regexs: {
       total: /EUR.+?(\d+\,\d{2})/g
@@ -45,7 +45,7 @@ Distanza: #distance# km
 
 È stata emessa una fattura di #total#€`
   },
-  "moovel": {
+  moovel: {
     longName: 'Car2Go',
     regexs: {
       total: /EUR.+?(\d+\,\d{2})/g
@@ -55,7 +55,7 @@ Distanza: #distance# km
 
 È stata emessa una fattura di #total#€`
   },
-  "drive-now": {
+  'drive-now': {
     longName: 'DriveNow',
     regexs: {
       total: /(\d+\,\d{2})/g,

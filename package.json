@@ -2,9 +2,7 @@
   "name": "car-sharing-notification",
   "version": "1.0.0",
   "description": "",
-  "main": "jwt.js",
   "dependencies": {
-    "@types/node": "^8.0.16",
     "firebase-admin": "^4.1.4",
     "google-auth-library": "^0.10.0",
     "googleapis": "^18.0.0",
@@ -17,6 +15,7 @@
     "npm": "5.x"
   },
   "devDependencies": {
+    "@types/node": "^8.0.16",
     "eslint": "^4.3.0",
     "eslint-config-google": "^0.9.1",
     "eslint-config-prettier": "^2.3.0",

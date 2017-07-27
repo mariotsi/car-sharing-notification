@@ -1,15 +1,17 @@
+// / <reference path="typings/Interfaces.ts" />
 'use strict';
-const admin = require('firebase-admin');
+import * as admin from 'firebase-admin';
+import * as http from 'http';
+import { strategyMap } from './strategyMap.js';
+import CSBot from './CSBot.js';
+
 const google = require('googleapis');
 const GoogleAuth = require('google-auth-library');
 const emails = google.gmail('v1').users.messages;
-const strategyMap = require('./strategyMap.js');
-const BotClass = require('./Bot.js');
 const Cron = require('node-cron');
-const http = require('http');
 
-const bot = new BotClass(undefined, updateIds);
-let savedIds = null;
+const bot = new CSBot(updateIds);
+let savedIds: string[] = null;
 // Initialize Firebase
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -24,16 +26,16 @@ const jwtPrivateKey = parseKey(process.env['JWT:privateKey']);
 // Initialize JWT Auth
 const auth = new GoogleAuth();
 const jwtClient = new auth.JWTClient(
-  process.env.JWT_client_email,
+  process.env['JWT:clientEmail'],
   null,
   jwtPrivateKey,
   // Scopes can be specified either as an array or as a single, space-delimited string
   ['https://mail.google.com/'],
   // User to impersonate (leave empty if no impersonation needed)
-  process.env.JWT_IMPERSONATE
+  process.env['JWT:impersonate']
 );
 
-jwtClient.authorize((err, tokens) => {
+jwtClient.authorize((err: Error) => {
   if (err) {
     return console.log(err);
   }
@@ -46,16 +48,16 @@ jwtClient.authorize((err, tokens) => {
   );
 });
 
-const checkNewEmails = pageToken => {
+const checkNewEmails = (pageToken?: string) => {
   emails.list(
     {
       auth: jwtClient,
       userId: 'me',
-      labelIds: process.env.GMAIL_LABEL,
+      labelIds: process.env['GMAIL:label'],
       pageToken,
       maxResults: 500
     },
-    (err, response) => {
+    (err: Error, response: Gmail.response) => {
       if (err) {
         console.log('The API returned an error: ' + err);
         return;
@@ -78,7 +80,7 @@ const checkNewEmails = pageToken => {
   );
 };
 
-function filterNewMessages(messagesId, nextPageToken) {
+function filterNewMessages(messagesId: string[], nextPageToken: string) {
   !!nextPageToken && setTimeout(() => checkNewEmails(nextPageToken), 500);
   for (let messageId of messagesId) {
     if (!savedIds.includes(messageId)) {
@@ -89,7 +91,7 @@ function filterNewMessages(messagesId, nextPageToken) {
   }
 }
 
-function handleNewMessage(messageId) {
+function handleNewMessage(messageId: string) {
   getEmail(messageId)
     .then(extractData, data =>
       db.ref(`emailIds/${data.id}`).set({ error: 'No body found' })
@@ -97,13 +99,13 @@ function handleNewMessage(messageId) {
     .then(sendNotification, data => db.ref(`emailIds/${data.id}`).set(data));
 }
 
-const sendNotification = parsedData => {
+const sendNotification = (parsedData: Interfaces.parsedData) => {
   const message = parseTemplate(parsedData);
   bot.sendMessage(message);
   db.ref(`emailIds/${parsedData.id}`).set(parsedData);
 };
 
-const getEmail = emailId =>
+const getEmail = (emailId: string) =>
   new Promise((resolve, reject) => {
     console.log('New email', emailId);
     db.ref(`emailIds/${emailId}`).set('Processing...');
@@ -113,7 +115,7 @@ const getEmail = emailId =>
         userId: 'me',
         id: emailId
       },
-      (err, response) => {
+      (err: Error, response: Gmail.email) => {
         if (err) {
           console.log('The API returned an error: ' + err);
           return reject(err);
@@ -121,7 +123,7 @@ const getEmail = emailId =>
         let bodyData = response.payload.body.data;
         if (!bodyData) {
           bodyData = (response.payload.parts.find(
-            item => (item.mimeType = 'text/plain')
+            item => item.mimeType === 'text/plain'
           ).body || {}).data;
           if (!bodyData) {
             console.log(`Email ${emailId} - Parse KO`);
@@ -141,13 +143,18 @@ const getEmail = emailId =>
     );
   });
 
-const extractData = data =>
+const extractData = (data: {
+  id: string;
+  sender: { value: string };
+  date: { value: string };
+  body: string;
+}) =>
   new Promise((resolve, reject) => {
     let strategy = /@(.+)\..*/.exec(data.sender.value)[1];
     let regexs;
-    const parsedData = {};
+    const parsedData: Interfaces.parsedData = {};
     for (let regex of Object.keys(
-      (regexs = (strategyMap[strategy] || {}).regexs || {})
+      (regexs = (strategyMap[strategy] || { regexs: null }).regexs || {})
     )) {
       let result;
       while ((result = regexs[regex].exec(data.body)) != null) {
@@ -184,25 +191,29 @@ const extractData = data =>
         date: data.date.value,
         error: 'No total found',
         parsedData: parsedData,
-        longName: (strategyMap[strategy] || {}).longName || 'Unidentified'
+        longName:
+          (strategyMap[strategy] || { longName: null }).longName ||
+          'Unidentified'
       });
     } else {
       console.log(
-        `Email from ${data.sender.value} id: ${emailId} - No data found`,
+        `Email from ${data.sender.value} id: ${data.id} - No data found`,
         data
       );
       return reject({
         id: data.id,
         error: 'No data found',
         data: data,
-        longName: (strategyMap[strategy] || {}).longName || 'Unidentified',
+        longName:
+          (strategyMap[strategy] || { longName: null }).longName ||
+          'Unidentified',
         sender: data.sender.value,
         date: data.date.value
       });
     }
   });
 
-const parseTemplate = context => {
+const parseTemplate = (context: Interfaces.parsedData) => {
   if (!context) {
     return 'Errore nel parseTemplate -> context null';
   }
@@ -235,14 +246,15 @@ setInterval(function() {
   console.log('Calling itself to keep the instance running.');
 }, 300000);
 
-function parseKey(key) {
+function parseKey(key: string) {
   try {
     return JSON.parse(key);
   } catch (e) {
     return key;
   }
 }
-function updateIds(callback) {
+
+function updateIds(callback: () => void) {
   db.ref('emailIds').once('value').then(function(snapshot) {
     console.log(
       'FORCED - Getting updated Ids from DB, from now on using cache'

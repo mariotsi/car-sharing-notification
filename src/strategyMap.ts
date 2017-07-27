@@ -1,4 +1,7 @@
-module.exports = {
+// / <reference path="typings/Interfaces.ts" />
+import mapEntry = Interfaces.mapEntry;
+
+const strategyMap: Interfaces.strategyMap = {
   'enjoy.eni': {
     longName: 'Enjoy',
     regexs: {
@@ -67,3 +70,4 @@ Distanza: #distance# km
 Hai speso #total#€ con l'auto targata <i>#plate#</i>`
   }
 };
+export { strategyMap };

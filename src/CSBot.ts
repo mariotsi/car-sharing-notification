@@ -3,7 +3,10 @@ import * as Moment from 'moment';
 class Bot {
   private updateIds: (callback: () => void) => void;
   private bot: TeleBot;
-  constructor(token = process.env.TELEGRAM_TOKEN, updateIds = () => {}) {
+  constructor(
+    updateIds: (callback: any) => void,
+    token: string = process.env.TELEGRAM_TOKEN
+  ) {
     this.updateIds = updateIds;
     this.bot = new TeleBot(token);
     this.bot.connect();
@@ -35,4 +38,4 @@ class Bot {
     this.bot.sendMessage(toId, message, options);
   }
 }
-module.exports = Bot;
+export default Bot;

@@ -6,7 +6,7 @@
     "firebase-admin": "^4.1.4",
     "google-auth-library": "^0.10.0",
     "googleapis": "^18.0.0",
-    "moment": "latest",
+    "moment": "2.x",
     "node-cron": "^1.1.3",
     "telebot": "^1.0.7"
   },

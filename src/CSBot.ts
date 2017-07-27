@@ -1,4 +1,4 @@
-import TeleBot from 'telebot';
+import * as TeleBot from 'telebot';
 import * as Moment from 'moment';
 class Bot {
   private updateIds: (callback: () => void) => void;

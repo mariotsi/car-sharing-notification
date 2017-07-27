@@ -1,5 +1,4 @@
 // / <reference path="typings/Interfaces.ts" />
-import mapEntry = Interfaces.mapEntry;
 
 const strategyMap: Interfaces.strategyMap = {
   'enjoy.eni': {

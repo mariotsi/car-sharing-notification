@@ -22,7 +22,6 @@
     "husky": "^0.14.3",
     "lint-staged": "^4.0.2",
     "prettier": "^1.5.3",
-    "compile": "tsc -p .",
     "typescript": "^2.4.2",
     "typescript-eslint-parser": "^4.0.0"
   },
@@ -30,6 +29,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node out/index.js",
     "lint": "eslint --fix --ext .ts --ext .js src",
+    "compile": "tsc -p .",
     "precommit": "lint-staged"
   },
   "lint-staged": {

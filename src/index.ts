@@ -2,7 +2,7 @@
 'use strict';
 import * as admin from 'firebase-admin';
 import * as http from 'http';
-import { strategyMap } from './strategyMap.js';
+import {strategyMap} from './strategyMap.js';
 import CSBot from './CSBot.js';
 
 const google = require('googleapis');
@@ -17,9 +17,9 @@ admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env['FIREBASE:projectId'],
     clientEmail: process.env['FIREBASE:clientEmail'],
-    privateKey: parseKey(process.env['FIREBASE:privateKey'])
+    privateKey: parseKey(process.env['FIREBASE:privateKey']),
   }),
-  databaseURL: process.env['FIREBASE:databaseURL']
+  databaseURL: process.env['FIREBASE:databaseURL'],
 });
 const db = admin.database();
 const jwtPrivateKey = parseKey(process.env['JWT:privateKey']);
@@ -55,7 +55,7 @@ const checkNewEmails = (pageToken?: string) => {
       userId: 'me',
       labelIds: process.env['GMAIL:label'],
       pageToken,
-      maxResults: 500
+      maxResults: 500,
     },
     (err: Error, response: Gmail.response) => {
       if (err) {
@@ -63,7 +63,7 @@ const checkNewEmails = (pageToken?: string) => {
         return;
       }
 
-      const messagesId = response.messages.map(message => message.id);
+      const messagesId = response.messages.map((message) => message.id);
       // let savedIds = null;
 
       // Using cache after first DB Synch in order to don't exaust the free tier of Firebase DB
@@ -93,10 +93,8 @@ function filterNewMessages(messagesId: string[], nextPageToken: string) {
 
 function handleNewMessage(messageId: string) {
   getEmail(messageId)
-    .then(extractData, data =>
-      db.ref(`emailIds/${data.id}`).set({ error: 'No body found' })
-    )
-    .then(sendNotification, data => db.ref(`emailIds/${data.id}`).set(data));
+    .then(extractData, (data) => db.ref(`emailIds/${data.id}`).set({error: 'No body found'}))
+    .then(sendNotification, (data) => db.ref(`emailIds/${data.id}`).set(data));
 }
 
 const sendNotification = (parsedData: Interfaces.parsedData) => {
@@ -113,7 +111,7 @@ const getEmail = (emailId: string) =>
       {
         auth: jwtClient,
         userId: 'me',
-        id: emailId
+        id: emailId,
       },
       (err: Error, response: Gmail.email) => {
         if (err) {
@@ -122,9 +120,7 @@ const getEmail = (emailId: string) =>
         }
         let bodyData = response.payload.body.data;
         if (!bodyData) {
-          bodyData = (response.payload.parts.find(
-            item => item.mimeType === 'text/plain'
-          ).body || {}).data;
+          bodyData = (response.payload.parts.find((item) => item.mimeType === 'text/plain').body || {}).data;
           if (!bodyData) {
             console.log(`Email ${emailId} - Parse KO`);
             return reject(response);
@@ -133,9 +129,9 @@ const getEmail = (emailId: string) =>
 
         const data = {
           id: response.id,
-          sender: response.payload.headers.find(item => item.name === 'From'),
-          date: response.payload.headers.find(item => item.name === 'Date'),
-          body: Buffer.from(bodyData, 'base64').toString()
+          sender: response.payload.headers.find((item) => item.name === 'From'),
+          date: response.payload.headers.find((item) => item.name === 'Date'),
+          body: Buffer.from(bodyData, 'base64').toString(),
         };
         console.log(`Email ${emailId} - Parse OK`);
         return resolve(data);
@@ -143,19 +139,12 @@ const getEmail = (emailId: string) =>
     );
   });
 
-const extractData = (data: {
-  id: string;
-  sender: { value: string };
-  date: { value: string };
-  body: string;
-}) =>
+const extractData = (data: { id: string; sender: { value: string }; date: { value: string }; body: string }) =>
   new Promise((resolve, reject) => {
     let strategy = /@(.+)\..*/.exec(data.sender.value)[1];
     let regexs;
     const parsedData: Interfaces.parsedData = {};
-    for (let regex of Object.keys(
-      (regexs = (strategyMap[strategy] || { regexs: null }).regexs || {})
-    )) {
+    for (let regex of Object.keys((regexs = (strategyMap[strategy] || {regexs: null}).regexs || {}))) {
       let result;
       while ((result = regexs[regex].exec(data.body)) != null) {
         result.shift();
@@ -174,41 +163,27 @@ const extractData = (data: {
       parsedData.strategy = strategy;
       parsedData.sender = data.sender.value;
       parsedData.date = data.date.value;
-      console.log(
-        `Email from ${data.sender
-          .value} id: ${parsedData.id} - Sending notification`,
-        parsedData
-      );
+      console.log(`Email from ${data.sender.value} id: ${parsedData.id} - Sending notification`, parsedData);
       return resolve(parsedData);
     } else if (!parsedData.total) {
-      console.log(
-        `Email from ${data.sender.value} id: ${data.id} - No total found`,
-        parsedData
-      );
+      console.log(`Email from ${data.sender.value} id: ${data.id} - No total found`, parsedData);
       return reject({
         id: data.id,
         sender: data.sender.value,
         date: data.date.value,
         error: 'No total found',
         parsedData: parsedData,
-        longName:
-          (strategyMap[strategy] || { longName: null }).longName ||
-          'Unidentified'
+        longName: (strategyMap[strategy] || {longName: null}).longName || 'Unidentified',
       });
     } else {
-      console.log(
-        `Email from ${data.sender.value} id: ${data.id} - No data found`,
-        data
-      );
+      console.log(`Email from ${data.sender.value} id: ${data.id} - No data found`, data);
       return reject({
         id: data.id,
         error: 'No data found',
         data: data,
-        longName:
-          (strategyMap[strategy] || { longName: null }).longName ||
-          'Unidentified',
+        longName: (strategyMap[strategy] || {longName: null}).longName || 'Unidentified',
         sender: data.sender.value,
-        date: data.date.value
+        date: data.date.value,
       });
     }
   });
@@ -233,7 +208,7 @@ const parseTemplate = (context: Interfaces.parsedData) => {
 
 http
   .createServer(function(req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end('Server is up');
   })
   .listen(process.env.PORT || 5000, () => {
@@ -256,9 +231,7 @@ function parseKey(key: string) {
 
 function updateIds(callback: () => void) {
   db.ref('emailIds').once('value').then(function(snapshot) {
-    console.log(
-      'FORCED - Getting updated Ids from DB, from now on using cache'
-    );
+    console.log('FORCED - Getting updated Ids from DB, from now on using cache');
     savedIds = Object.keys(snapshot.val() || {}) || [];
     callback();
   });

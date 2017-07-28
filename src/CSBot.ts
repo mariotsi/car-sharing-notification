@@ -10,6 +10,7 @@ class Bot {
     this.updateIds = updateIds;
     this.bot = new TeleBot(token);
     this.bot.connect();
+    this.sendMessage("Ok, i'm fine after restart 🎉");
     this.bot.on('/echo', msg => {
       this.sendMessage(`Echo un cazzo!`, msg.from.id);
     });

@@ -12,6 +12,7 @@
 # VS Code
 .vscode/
 jsconfig.json
+.history/
 
 ##############
 # NODE SERVICE
@@ -32,3 +33,5 @@ npm-debug.log
 ._*
 */._*
 */*/._*
+
+out/

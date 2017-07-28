@@ -5,7 +5,7 @@ class Bot {
   private bot: TeleBot;
   constructor(
     updateIds: (callback: any) => void,
-    token: string = process.env.TELEGRAM_TOKEN
+    token: string = process.env['TELEGRAM:token']
   ) {
     this.updateIds = updateIds;
     this.bot = new TeleBot(token);
@@ -32,7 +32,7 @@ class Bot {
 
   sendMessage(
     message: string,
-    toId = process.env.TELEGRAM_CLIENT_ID,
+    toId = process.env['TELEGRAM:clientId'],
     options = { parseMode: 'HTML' }
   ) {
     this.bot.sendMessage(toId, message, options);

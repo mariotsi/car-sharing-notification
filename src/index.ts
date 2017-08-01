@@ -1,17 +1,22 @@
 // / <reference path="typings/Interfaces.ts" />
 'use strict';
+import * as util from 'util';
 import * as admin from 'firebase-admin';
 import * as http from 'http';
 import {strategyMap} from './strategyMap.js';
 import CSBot from './CSBot.js';
+import Email from './classes/Email.js';
 
 const google = require('googleapis');
 const GoogleAuth = require('google-auth-library');
 const emails = google.gmail('v1').users.messages;
+emails.getPromisified = util.promisify(emails.get);
+emails.listPromisified = util.promisify(emails.list);
 const Cron = require('node-cron');
+const isDev = process.env.dev === 'true';
 
 const bot = new CSBot(updateIds);
-let savedIds: string[] = null;
+let savedIds: string[] = [];
 // Initialize Firebase
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -55,7 +60,7 @@ const checkNewEmails = (pageToken?: string) => {
       userId: 'me',
       labelIds: process.env['GMAIL:label'],
       pageToken,
-      maxResults: 500,
+      maxResults: isDev ? 10 : 500,
     },
     (err: Error, response: Gmail.response) => {
       if (err) {
@@ -63,11 +68,16 @@ const checkNewEmails = (pageToken?: string) => {
         return;
       }
 
+      // Blocking requests on dev env
+      if (isDev) {
+        response.nextPageToken = null;
+      }
+
       const messagesId = response.messages.map((message) => message.id);
       // let savedIds = null;
 
       // Using cache after first DB Synch in order to don't exaust the free tier of Firebase DB
-      if (!savedIds) {
+      if (!isDev && !savedIds.length) {
         db.ref('emailIds').once('value').then(function(snapshot) {
           console.log('Getting updated Ids from DB, from now on using cache');
           savedIds = Object.keys(snapshot.val() || {}) || [];
@@ -103,41 +113,21 @@ const sendNotification = (parsedData: Interfaces.parsedData) => {
   db.ref(`emailIds/${parsedData.id}`).set(parsedData);
 };
 
-const getEmail = (emailId: string) =>
-  new Promise((resolve, reject) => {
-    console.log('New email', emailId);
-    db.ref(`emailIds/${emailId}`).set('Processing...');
-    emails.get(
-      {
+const getEmail = async (emailId: string) => {
+  console.log('New email', emailId);
+  db.ref(`emailIds/${emailId}`).set('Processing...');
+  try {
+    return new Email(
+      await emails.getPromisified({
         auth: jwtClient,
         userId: 'me',
         id: emailId,
-      },
-      (err: Error, response: Gmail.email) => {
-        if (err) {
-          console.log('The API returned an error: ' + err);
-          return reject(err);
-        }
-        let bodyData = response.payload.body.data;
-        if (!bodyData) {
-          bodyData = (response.payload.parts.find((item) => item.mimeType === 'text/plain').body || {}).data;
-          if (!bodyData) {
-            console.log(`Email ${emailId} - Parse KO`);
-            return reject(response);
-          }
-        }
-
-        const data = {
-          id: response.id,
-          sender: response.payload.headers.find((item) => item.name === 'From'),
-          date: response.payload.headers.find((item) => item.name === 'Date'),
-          body: Buffer.from(bodyData, 'base64').toString(),
-        };
-        console.log(`Email ${emailId} - Parse OK`);
-        return resolve(data);
-      }
+      })
     );
-  });
+  } catch (err) {
+    console.log('The API returned an error: ' + err);
+  }
+};
 
 const extractData = (data: { id: string; sender: { value: string }; date: { value: string }; body: string }) =>
   new Promise((resolve, reject) => {

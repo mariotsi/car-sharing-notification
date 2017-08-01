@@ -1,9 +1,9 @@
-import {templates} from './templates.js';
+import {templates} from './templates';
 /* eslint-disable no-unused-vars */
 import Email from '../classes/Email';
 /* eslint-enable no-unused-vars */
 
-async function parse(email: Email) {
+function parse(email: Email) {
   let strategy = /@(.+)\..*/.exec(email.sender.value)[1];
   let regexs;
   let parsedData: Interfaces.parsedData = {};

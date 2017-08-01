@@ -1,7 +1,7 @@
 // / <reference path="typings/Interfaces.ts" />
 'use strict';
 import * as nodeUtil from 'util';
-import {parseEmailBody, templates} from './util';
+import {parseEmailBody, emailsToFilter, fillTemplate} from './util';
 import * as admin from 'firebase-admin';
 import * as http from 'http';
 import CSBot from './classes/CSBot.js';
@@ -58,8 +58,9 @@ const checkNewEmails = (pageToken?: string) => {
     {
       auth: jwtClient,
       userId: 'me',
-      labelIds: process.env['GMAIL:label'],
+      // labelIds: process.env['GMAIL:label'],
       pageToken,
+      q: `from:(${emailsToFilter.join('||')})`,
       maxResults: isDev ? 10 : 500,
     },
     (err: Error, response: Gmail.response) => {
@@ -113,7 +114,7 @@ async function handleNewMessage(messageId: string) {
 }
 
 const sendNotification = (parsedData: Interfaces.parsedData) => {
-  const message = parseTemplate(parsedData);
+  const message = fillTemplate(parsedData);
   bot.sendMessage(message);
   db.ref(`emailIds/${parsedData.id}`).set(parsedData);
 };
@@ -135,31 +136,13 @@ const getEmail = async (emailId: string) => {
   }
 };
 
-const parseTemplate = (context: Interfaces.parsedData) => {
-  if (!context) {
-    return 'Errore nel parseTemplate -> context null';
-  }
-  let template = templates[context.strategy].template;
-  if (context.total) {
-    context.total = context.total.replace('.', ',');
-  }
-  if (!!context.type && context.type.includes('MP3')) {
-    // Enjoy Piaggio MP3
-    template = templates[context.strategy].templateScooter;
-  }
-  for (let key of Object.keys(context)) {
-    template = template.replace(`#${key}#`, context[key]);
-  }
-  return template;
-};
-
 http
   .createServer(function(req, res) {
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end('Server is up');
   })
   .listen(process.env.PORT || 5000, () => {
-    console.log('Server listening on port: ', process.env.PORT);
+    console.log('Server listening on port: ', process.env.PORT || 5000);
   });
 
 setInterval(function() {

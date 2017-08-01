@@ -33,7 +33,7 @@ export default class Email {
   get bodyData() {
     let bodyData = this.payload.body.data;
     if (!bodyData) {
-      bodyData = (this.payload.parts.find((item) => item.mimeType === 'text/plain').body || {}).data;
+      bodyData = ((this.payload.parts.find((item) => item.mimeType === 'text/plain') || {}).body || {}).data;
     }
     return bodyData;
   }

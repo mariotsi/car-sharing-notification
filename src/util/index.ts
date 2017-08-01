@@ -1,4 +1,4 @@
 import Parser = require('./Parser');
-import {templates} from './templates';
+import {emailsToFilter, fillTemplate} from './templates';
 
-export {Parser as parseEmailBody, templates};
+export {Parser as parseEmailBody, fillTemplate, emailsToFilter};

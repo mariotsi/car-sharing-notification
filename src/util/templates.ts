@@ -60,4 +60,4 @@ const strategyMap: Interfaces.strategyMap = {
                 'È stata emessa una fattura di #total#€',
     };
   }))();
-export {strategyMap};
+export {strategyMap as templates};

@@ -1,17 +1,17 @@
 // / <reference path="typings/Interfaces.ts" />
 'use strict';
-import * as util from 'util';
+import * as nodeUtil from 'util';
+import {parseEmailBody, templates} from './util';
 import * as admin from 'firebase-admin';
 import * as http from 'http';
-import {strategyMap} from './strategyMap.js';
-import CSBot from './CSBot.js';
+import CSBot from './classes/CSBot.js';
 import Email from './classes/Email.js';
 
 const google = require('googleapis');
 const GoogleAuth = require('google-auth-library');
 const emails = google.gmail('v1').users.messages;
-emails.getPromisified = util.promisify(emails.get);
-emails.listPromisified = util.promisify(emails.list);
+emails.getPromisified = nodeUtil.promisify(emails.get);
+emails.listPromisified = nodeUtil.promisify(emails.list);
 const Cron = require('node-cron');
 const isDev = process.env.dev === 'true';
 
@@ -101,10 +101,15 @@ function filterNewMessages(messagesId: string[], nextPageToken: string) {
   }
 }
 
-function handleNewMessage(messageId: string) {
-  getEmail(messageId)
-    .then(extractData, (data) => db.ref(`emailIds/${data.id}`).set({error: 'No body found'}))
-    .then(sendNotification, (data) => db.ref(`emailIds/${data.id}`).set(data));
+async function handleNewMessage(messageId: string) {
+  const email = await getEmail(messageId);
+
+  parseEmailBody(email);
+  if (email.parsedData.error) {
+    db.ref(`emailIds/${email.id}`).set(email.parsedData);
+    return;
+  }
+  sendNotification(email.parsedData);
 }
 
 const sendNotification = (parsedData: Interfaces.parsedData) => {
@@ -126,69 +131,21 @@ const getEmail = async (emailId: string) => {
     );
   } catch (err) {
     console.log('The API returned an error: ' + err);
+    db.ref(`emailIds/${emailId}`).set({error: 'Error retrieving email from Gmail'});
   }
 };
-
-const extractData = (data: { id: string; sender: { value: string }; date: { value: string }; body: string }) =>
-  new Promise((resolve, reject) => {
-    let strategy = /@(.+)\..*/.exec(data.sender.value)[1];
-    let regexs;
-    const parsedData: Interfaces.parsedData = {};
-    for (let regex of Object.keys((regexs = (strategyMap[strategy] || {regexs: null}).regexs || {}))) {
-      let result;
-      while ((result = regexs[regex].exec(data.body)) != null) {
-        result.shift();
-        result[0] = result[0].replace(',', '.');
-        // Sum due to double invoices in some email
-        parsedData[regex] = parsedData[regex]
-          ? (parseFloat(parsedData[regex]) + parseFloat(result[0])).toFixed(2)
-          : result[0];
-      }
-      // resetting the Regex due to \g flag
-      regexs[regex].lastIndex = 0;
-    }
-    if (Object.keys(parsedData).length && parsedData.total) {
-      parsedData.longName = strategyMap[strategy].longName;
-      parsedData.id = data.id;
-      parsedData.strategy = strategy;
-      parsedData.sender = data.sender.value;
-      parsedData.date = data.date.value;
-      console.log(`Email from ${data.sender.value} id: ${parsedData.id} - Sending notification`, parsedData);
-      return resolve(parsedData);
-    } else if (!parsedData.total) {
-      console.log(`Email from ${data.sender.value} id: ${data.id} - No total found`, parsedData);
-      return reject({
-        id: data.id,
-        sender: data.sender.value,
-        date: data.date.value,
-        error: 'No total found',
-        parsedData: parsedData,
-        longName: (strategyMap[strategy] || {longName: null}).longName || 'Unidentified',
-      });
-    } else {
-      console.log(`Email from ${data.sender.value} id: ${data.id} - No data found`, data);
-      return reject({
-        id: data.id,
-        error: 'No data found',
-        data: data,
-        longName: (strategyMap[strategy] || {longName: null}).longName || 'Unidentified',
-        sender: data.sender.value,
-        date: data.date.value,
-      });
-    }
-  });
 
 const parseTemplate = (context: Interfaces.parsedData) => {
   if (!context) {
     return 'Errore nel parseTemplate -> context null';
   }
-  let template = strategyMap[context.strategy].template;
+  let template = templates[context.strategy].template;
   if (context.total) {
     context.total = context.total.replace('.', ',');
   }
   if (!!context.type && context.type.includes('MP3')) {
     // Enjoy Piaggio MP3
-    template = strategyMap[context.strategy].templateScooter;
+    template = templates[context.strategy].templateScooter;
   }
   for (let key of Object.keys(context)) {
     template = template.replace(`#${key}#`, context[key]);

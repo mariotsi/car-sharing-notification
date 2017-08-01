@@ -24,6 +24,7 @@ export default class Email {
   };
   sizeEstimate: number;
   raw: Buffer;
+  parsedData: Interfaces.parsedData;
 
   constructor(email: any) {
     Object.assign(this, email);

@@ -154,10 +154,9 @@ function parseKey(key: string) {
   }
 }
 
-function updateIds(callback: () => void) {
-  db.ref('emailIds').once('value').then(function(snapshot) {
-    console.log('FORCED - Getting updated Ids from DB, from now on using cache');
-    savedIds = Object.keys(snapshot.val() || {}) || [];
-    callback();
-  });
+async function updateIds(callback: () => void) {
+  const snapshot = await db.ref('emailIds').once('value');
+  console.log('FORCED - Getting updated Ids from DB, from now on using cache');
+  savedIds = Object.keys(snapshot.val() || {}) || [];
+  callback();
 }

@@ -53,53 +53,48 @@ jwtClient.authorize((err: Error) => {
   );
 });
 
-const checkNewEmails = (pageToken?: string) => {
-  emails.list(
-    {
+const checkNewEmails = async (pageToken?: string) => {
+  try {
+    const response: Gmail.response = await emails.listPromisified({
       auth: jwtClient,
       userId: 'me',
       // labelIds: process.env['GMAIL:label'],
       pageToken,
       q: `from:(${emailsToFilter.join('||')})`,
       maxResults: isDev ? 10 : 500,
-    },
-    (err: Error, response: Gmail.response) => {
-      if (err) {
-        console.log('The API returned an error: ' + err);
-        return;
-      }
-
-      // Blocking requests on dev env
-      if (isDev) {
-        response.nextPageToken = null;
-      }
-
-      const messagesId = response.messages.map((message) => message.id);
-      // let savedIds = null;
-
-      // Using cache after first DB Synch in order to don't exaust the free tier of Firebase DB
-      if (!isDev && !savedIds.length) {
-        db.ref('emailIds').once('value').then(function(snapshot) {
-          console.log('Getting updated Ids from DB, from now on using cache');
-          savedIds = Object.keys(snapshot.val() || {}) || [];
-          filterNewMessages(messagesId, response.nextPageToken);
-        });
-      } else {
-        filterNewMessages(messagesId, response.nextPageToken);
-      }
+    });
+    // Blocking requests on dev env
+    if (isDev) {
+      response.nextPageToken = null;
     }
-  );
+
+    // const messagesId = response.messages.map((message) => message.id);
+    // let savedIds = null;
+
+    // Using cache after first DB Synch in order to don't exaust the free tier of Firebase DB
+    if (!isDev && !savedIds.length) {
+      const snapshot = await db.ref('emailIds').once('value');
+      console.log('Getting updated Ids from DB, from now on using cache');
+      savedIds = Object.keys(snapshot.val() || {}) || [];
+    }
+    await filterNewMessages(response.messages, response.nextPageToken);
+  } catch (e) {
+    console.log('The API returned an error: ' + e.message);
+  }
 };
 
-function filterNewMessages(messagesId: string[], nextPageToken: string) {
-  !!nextPageToken && setTimeout(() => checkNewEmails(nextPageToken), 500);
-  for (let messageId of messagesId) {
-    if (!savedIds.includes(messageId)) {
-      // console.log('new message', messageId);
-      savedIds.push(messageId);
-      handleNewMessage(messageId);
-    }
-  }
+async function filterNewMessages(messages: Gmail.email[], nextPageToken: string) {
+  await Promise.all(
+    messages.reduce((acc, {id}) => {
+      if (!savedIds.includes(id)) {
+        // console.log('new message', message);
+        savedIds.push(id);
+        acc.push(handleNewMessage(id));
+      }
+      return acc;
+    }, [])
+  );
+  !!nextPageToken && checkNewEmails(nextPageToken);
 }
 
 async function handleNewMessage(messageId: string) {

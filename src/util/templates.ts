@@ -1,6 +1,6 @@
 // / <reference path="typings/Interfaces.ts" />
 
-const strategyMap: Interfaces.strategyMap = {
+const templates: Interfaces.strategyMap = {
   'enjoy.eni': {
     longName: 'Enjoy',
     regexs: {
@@ -49,7 +49,7 @@ const strategyMap: Interfaces.strategyMap = {
 };
 (() =>
   ['moovel', 'payment.car2go'].forEach((element) => {
-    strategyMap[element] = {
+    templates[element] = {
       longName: 'Car2Go',
       regexs: {
         total: /EUR.+?(\d+\,\d{2})/g,
@@ -60,4 +60,22 @@ const strategyMap: Interfaces.strategyMap = {
                 'È stata emessa una fattura di #total#€',
     };
   }))();
-export {strategyMap};
+const fillTemplate = (context: Interfaces.parsedData) => {
+  if (!context) {
+    return 'Errore nel parseTemplate -> context null';
+  }
+  let template = templates[context.strategy].template;
+  if (context.total) {
+    context.total = context.total.replace('.', ',');
+  }
+  if (!!context.type && context.type.includes('MP3')) {
+    // Enjoy Piaggio MP3
+    template = templates[context.strategy].templateScooter;
+  }
+  for (let key of Object.keys(context)) {
+    template = template.replace(`#${key}#`, context[key]);
+  }
+  return template;
+};
+const emailsToFilter = Object.keys(templates);
+export {templates, fillTemplate, emailsToFilter};

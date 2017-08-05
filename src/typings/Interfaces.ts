@@ -35,6 +35,9 @@ declare namespace Interfaces {
     strategy?: string;
     sender?: string;
     date?: string;
+    error?: string;
+    parsedData?: any;
+    rawData?: any;
     total?: string;
     type?: string;
     [name: string]: string;

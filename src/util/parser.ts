@@ -23,6 +23,7 @@ function parse(email: Email) {
   parsedData = Object.assign(parsedData, {
     longName: templates[strategy] ? templates[strategy].longName : 'Unidentified',
     id: email.id,
+    telegramId: email.telegramId,
     strategy: strategy,
     sender: email.sender.value,
     date: email.date.value,

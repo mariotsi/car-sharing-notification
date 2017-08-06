@@ -1,21 +1,14 @@
 // / <reference path="typings/Interfaces.ts" />
 'use strict';
-import * as admin from 'firebase-admin';
-import * as http from 'http';
-import startEmailScanning from './emailHandler.js';
 
+import * as http from 'http';
+import * as url from 'url';
+// import {parseKey} from './util';
+import * as querystring from 'querystring';
+import startUp from './polling';
+/*
 const GoogleAuth = require('google-auth-library');
 
-// Initialize Firebase
-admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: process.env['FIREBASE:projectId'],
-    clientEmail: process.env['FIREBASE:clientEmail'],
-    privateKey: parseKey(process.env['FIREBASE:privateKey']),
-  }),
-  databaseURL: process.env['FIREBASE:databaseURL'],
-});
-const db = admin.database();
 const jwtPrivateKey = parseKey(process.env['JWT:privateKey']);
 // Initialize JWT Auth
 const auth = new GoogleAuth();
@@ -28,9 +21,23 @@ const jwtClient = new auth.JWTClient(
   // User to impersonate (leave empty if no impersonation needed)
   process.env['JWT:impersonate']
 );
-
+*/
 http
-  .createServer(function(req, res) {
+  .createServer(async function(req, res) {
+    const pathName = url.parse(req.url).pathname;
+    const query = querystring.parse(url.parse(req.url).query);
+    if (pathName === '/oauth_cb') {
+      res.writeHead(301, {
+        Location: `https://telegram.me/car_sharing_bot?start=${new Buffer(query.code).toString('base64')}`,
+      });
+      res.end();
+      /* request.get(`https://telegram.me/car_sharing_bot?start=${query.code}`,{},(e,a)=>{
+        console.log(a);
+        res.end(`Server is up on ${req.headers.host} ${JSON.stringify(query)}`)
+
+      }
+      );*/
+    }
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end('Server is up');
   })
@@ -44,12 +51,4 @@ setInterval(() => {
   console.log('Calling itself to keep the instance running.');
 }, 300000);
 
-function parseKey(key: string) {
-  try {
-    return JSON.parse(key);
-  } catch (e) {
-    return key;
-  }
-}
-
-startEmailScanning(jwtClient, db);
+startUp();

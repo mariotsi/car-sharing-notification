@@ -8,7 +8,7 @@ const url = 'mongodb://localhost:27017/csn';
 async function load() {
   try {
     const db = await MongoClient.connect(url);
-    console.log(await db.listCollections({}).toArray());
+    // console.log(await db.listCollections({}).toArray());
     users = db.collection('users');
     // messages = db.collection('messages');
   } catch (e) {

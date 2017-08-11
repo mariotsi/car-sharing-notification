@@ -34,7 +34,7 @@ class Bot {
       const splittedMessage = msg.text.split(' ');
       if (splittedMessage.length === 1) {
         // first time connecting, still not authenticated
-        oAuth.authenticateUser({
+        await oAuth.manageNewUser({
           telegramId: msg.from.id,
           firstName: msg.from.first_name,
           lastName: msg.from.last_name,

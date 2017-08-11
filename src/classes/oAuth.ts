@@ -67,15 +67,19 @@ const getClient = () => {
 };
 
 async function authenticateUser(user: any) {
-  if (await Users.getUser(user.telegramId)) {
-    bot.sendMessage(`Welcome back ${user.firstName} 🎉`, user.telegramId);
-    // TODO check if still authenticated
-  } else {
-    user.authInProgress = true;
-    user.joined = new Date().toISOString();
-    await db.updateUser(user);
-    bot.sendLoginMessage(user.telegramId);
-  }
+  user.authInProgress = true;
+  user.joined = new Date().toISOString();
+  await db.updateUser(user);
+  await bot.sendLoginMessage(user.telegramId);
 }
 
-export {getOAuthUrl, getAndSaveTokens, getClient, setCredentials, authenticateUser};
+async function manageNewUser(user: any) {
+  if (await Users.getUser(user.telegramId)) {
+    // He is a recurring user
+    return bot.sendMessage(`Welcome back ${user.firstName} 🎉`, user.telegramId);
+    // TODO check if still authenticated
+  }
+  await authenticateUser(user);
+}
+
+export {manageNewUser, getOAuthUrl, getAndSaveTokens, getClient, setCredentials, authenticateUser};

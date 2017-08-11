@@ -47,6 +47,7 @@ const getAndSaveTokens = async (code: string, telegramId: number) => {
     const user = await Users.getUser(telegramId);
     user.authInProgress = false;
     user.tokens = tokens;
+    user.authDate = new Date().toISOString();
     await Users.updateUser(user);
     // Now tokens contains an access_token and an optional refresh_token. Save them.
     // oauth2Client.setCredentials(tokens);
@@ -66,9 +67,15 @@ const getClient = () => {
 };
 
 async function authenticateUser(user: any) {
-  user.authInProgress = true;
-  await db.updateUser(user);
-  bot.sendLoginMessage(user.telegramId);
+  if (await Users.getUser(user.telegramId)) {
+    bot.sendMessage(`Welcome back ${user.firstName} 🎉`, user.telegramId);
+    // TODO check if still authenticated
+  } else {
+    user.authInProgress = true;
+    user.joined = new Date().toISOString();
+    await db.updateUser(user);
+    bot.sendLoginMessage(user.telegramId);
+  }
 }
 
 export {getOAuthUrl, getAndSaveTokens, getClient, setCredentials, authenticateUser};

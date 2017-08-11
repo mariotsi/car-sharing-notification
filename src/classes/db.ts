@@ -21,8 +21,13 @@ export async function getUsers(telegramId?: number) {
     await load();
   }
   try {
-    const query = telegramId ? {telegramId} : {};
-    return await users.find(query).toArray();
+    const query: any = {
+      active: {$ne: false},
+    };
+    if (telegramId) {
+      query.telegramId = telegramId;
+    }
+    return (await users.find(query)).toArray();
   } catch (e) {
     console.log('Error retrieving users', e);
   }

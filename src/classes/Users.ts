@@ -3,7 +3,7 @@ import * as db from './db';
 const users: Map<number, any> = new Map();
 
 async function loadUsers() {
-  const dbUsers = await db.getUsers();
+  const dbUsers: any[] = await db.getUsers();
   dbUsers.forEach((item) => users.set(item.telegramId, item));
   /* users.set(Number(process.env['TELEGRAM:clientId']), {
     tokens2: {
@@ -17,7 +17,12 @@ async function loadUsers() {
 async function getUser(telegramId: number) {
   try {
     if (!users.has(telegramId)) {
-      users.set(telegramId, (await db.getUsers(telegramId))[0]);
+      const dbUser = (await db.getUsers(telegramId))[0];
+      if (dbUser) {
+        users.set(telegramId, dbUser);
+      } else {
+        return null;
+      }
     }
     return users.get(telegramId);
   } catch (e) {

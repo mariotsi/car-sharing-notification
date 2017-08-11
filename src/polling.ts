@@ -8,8 +8,7 @@ function chronTask() {
       oAuth.setCredentials(v.tokens);
       await checkNewEmails(k);
     } else if (!v.authInProgress) {
-      oAuth.authenticateUser(k);
-      v.authInProgress = true;
+      oAuth.authenticateUser(v);
     }
   });
 }
@@ -19,7 +18,7 @@ function startChronTask() {
 }
 
 async function startUp() {
-  await Users.setUsers();
+  await Users.loadUsers();
   startChronTask();
 }
 

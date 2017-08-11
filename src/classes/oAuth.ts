@@ -2,6 +2,7 @@ import * as nodeUtil from 'util';
 import * as rp from 'request-promise';
 import bot from './CSBot';
 import * as Users from './Users';
+import * as db from './db';
 
 const bitlyUrl = 'https://api-ssl.bitly.com/v3/shorten';
 
@@ -43,12 +44,14 @@ const getOAuthUrl = async (telegramId: number | string) => {
 const getAndSaveTokens = async (code: string, telegramId: number) => {
   try {
     const tokens = await oauth2Client.getTokenPromisified(code);
-    const user = Users.list.get(telegramId);
+    const user = await Users.getUser(telegramId);
     user.authInProgress = false;
     user.tokens = tokens;
+    await Users.updateUser(user);
     // Now tokens contains an access_token and an optional refresh_token. Save them.
     // oauth2Client.setCredentials(tokens);
     // return oauth2Client;
+    return user;
   } catch (e) {
     console.log('Error during token exchange', e);
   }
@@ -62,8 +65,10 @@ const getClient = () => {
   return oauth2Client;
 };
 
-function authenticateUser(telegramId: number) {
-  bot.sendLoginMessage(telegramId);
+async function authenticateUser(user: any) {
+  user.authInProgress = true;
+  await db.updateUser(user);
+  bot.sendLoginMessage(user.telegramId);
 }
 
 export {getOAuthUrl, getAndSaveTokens, getClient, setCredentials, authenticateUser};

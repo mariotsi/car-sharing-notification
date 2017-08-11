@@ -31,39 +31,52 @@ class Bot {
     });
 
     this.bot.on('/start', async (msg) => {
-      const code = new Buffer(msg.text.split(' ')[1], 'base64').toString();
-      await oAuth.getAndSaveTokens(code, msg.from.id);
+      const splittedMessage = msg.text.split(' ');
+      if (splittedMessage.length === 1) {
+        // first time connecting, still not authenticated
+        oAuth.authenticateUser({
+          telegramId: msg.from.id,
+          firstName: msg.from.first_name,
+          lastName: msg.from.last_name,
+          username: msg.from.username,
+          language: msg.from.language_code,
+        });
+      } else {
+        const code = new Buffer(msg.text.split(' ')[1], 'base64').toString();
+        const newUser = await oAuth.getAndSaveTokens(code, msg.from.id);
+        this.sendToMaster('New User: ' + JSON.stringify(newUser));
+      }
       console.log(msg);
     });
   }
 
-  sendMessage(
-    message: string,
-    toId = Number(process.env['TELEGRAM:clientId']),
-    options: any = {parseMode: 'HTML'}
-  ) {
+  sendMessage(message: string, toId: number, options: any = {parseMode: 'HTML'}) {
     this.bot.sendMessage(toId, message, options);
   }
 
   async getName() {
     this.name = await this.bot.getMe();
-    this.sendMessage(
+    this.sendToMaster(
       `Ok, I\'m fine after restart 🎉 \n\nBot name: ${this.name.first_name}\nBot username: ${this.name.username}`
     );
   }
 
-  async sendLoginMessage(chatId: number) {
+  sendToMaster(message: string, options: any = {parseMode: 'HTML'}) {
+    this.bot.sendMessage(process.env['TELEGRAM:clientId'], message, options);
+  }
+
+  async sendLoginMessage(telegramId: number) {
     try {
       const keyboard = this.bot.inlineKeyboard([
-        [this.bot.inlineButton('Login', {url: await oAuth.getOAuthUrl(chatId)})],
+        [this.bot.inlineButton('Login', {url: await oAuth.getOAuthUrl(telegramId)})],
       ]);
       this.sendMessage(
         'You need to authenticate with Google in order to let the bot read CarSharing emails',
-        chatId,
+        telegramId,
         {replyMarkup: keyboard}
       );
     } catch (e) {
-      this.sendMessage('Is time to authenticate yourself');
+      console.log('Cannot get oAuth url for this id: ' + telegramId);
     }
   }
 }
@@ -71,7 +84,7 @@ class Bot {
 async function updateIds() {
   const snapshot = await firebase.onceValue('emailIds');
   console.log('FORCED - Getting updated Ids from DB, from now on using cache');
-  (Object.keys(snapshot.val() || {}) || []).map(firebase.localSavedIds.add);
+  (Object.keys(snapshot.val() || {}) || []).map((key) => firebase.localSavedIds.add(key));
 }
 
 const bot = new Bot();

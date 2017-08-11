@@ -63,12 +63,12 @@ async function handleNewMessage(messageId: string, telegramId: number) {
     firebase.set(`emailIds/${email.id}`, email.parsedData);
     return;
   }
-  sendNotification(email.parsedData);
+  sendNotification(email.parsedData, telegramId);
 }
 
-const sendNotification = (parsedData: Interfaces.parsedData) => {
+const sendNotification = (parsedData: Interfaces.parsedData, to: number) => {
   const message = fillTemplate(parsedData);
-  bot.sendMessage(message);
+  bot.sendMessage(message, to);
   firebase.set(`emailIds/${parsedData.id}`, parsedData);
 };
 

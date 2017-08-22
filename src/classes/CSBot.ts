@@ -27,8 +27,9 @@ class Bot {
     });
 
     this.bot.on('/update', async (msg) => {
+      if (msg.from.id != process.env['TELEGRAM:clientId']) return;
       await updateIds();
-      this.sendMessage(`Sincronizzazione con DB avvenuta`, msg.from.id);
+      this.sendToMaster('Sincronizzazione con DB avvenuta');
     });
 
     this.bot.on('/start', async (msg) => {

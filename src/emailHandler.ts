@@ -38,6 +38,9 @@ const checkNewEmails = async (telegramId: number, pageToken?: string) => {
     await filterNewMessages(telegramId, response.messages, response.nextPageToken);
   } catch (e) {
     console.log('The API returned an error: ' + e);
+    if (e.code === 401) {
+      await oAuth.authenticateUser(telegramId, true);
+    }
   }
 };
 

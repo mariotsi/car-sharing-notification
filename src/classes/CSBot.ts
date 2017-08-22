@@ -33,6 +33,7 @@ class Bot {
 
     this.bot.on('/start', async (msg) => {
       const splittedMessage = msg.text.split(' ');
+      const recurringUser = !!await Users.getUser(msg.from.id.telegramId);
       if (splittedMessage.length === 1) {
         // first time connecting, still not authenticated or reactivating old user
         await oAuth.manageNewUser({
@@ -45,7 +46,7 @@ class Bot {
       } else {
         const code = new Buffer(msg.text.split(' ')[1], 'base64').toString();
         const newUser = await oAuth.getAndSaveTokens(code, msg.from.id);
-        this.sendToMaster('New User: ' + JSON.stringify(newUser));
+        !recurringUser && this.sendToMaster('New User: ' + JSON.stringify(newUser));
       }
       console.log(msg);
     });
@@ -66,7 +67,7 @@ class Bot {
   async getName() {
     this.name = await this.bot.getMe();
     this.sendToMaster(
-      `Ok, I\'m fine after restart 🎉 \n\nBot name: ${this.name.first_name}\nBot username: ${this.name.username}`
+      `I'm fine after restart 🎉 \n\nBot name: ${this.name.first_name}\nBot username: ${this.name.username}`
     );
   }
 
@@ -74,15 +75,21 @@ class Bot {
     this.bot.sendMessage(process.env['TELEGRAM:clientId'], message, options);
   }
 
-  async sendLoginMessage(telegramId: number) {
+  async sendLoginMessage(telegramId: number, expired?: boolean) {
     try {
       const keyboard = this.bot.inlineKeyboard([
         [this.bot.inlineButton('Login', {url: await oAuth.getOAuthUrl(telegramId)})],
       ]);
       this.sendMessage(
-        'You need to authenticate with Google in order to let the bot read CarSharing emails',
+        expired
+          ? 'You authentication with Google is no longer valid.\n\n' +
+            'In order to continue using this service please re-authenticate yourself'
+          : 'You need to authenticate with Google in order to let the bot read CarSharing emails',
         telegramId,
-        {replyMarkup: keyboard}
+        {
+          replyMarkup: keyboard,
+          parseMode: 'HTML',
+        }
       );
     } catch (e) {
       console.log('Cannot get oAuth url for this id: ' + telegramId);

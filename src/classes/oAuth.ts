@@ -66,11 +66,17 @@ const getClient = () => {
   return oauth2Client;
 };
 
-async function authenticateUser(user: any) {
+async function authenticateUser(user: any, expired?: boolean) {
+  if (expired && typeof user === 'number') {
+    user = await Users.getUser(user);
+    user.tokens = undefined;
+  }
   user.authInProgress = true;
-  user.joined = new Date().toISOString();
+  if (!user.joined) {
+    user.joined = new Date().toISOString();
+  }
   await db.updateUser(user);
-  await bot.sendLoginMessage(user.telegramId);
+  await bot.sendLoginMessage(user.telegramId, true);
 }
 
 async function manageNewUser(user: any) {

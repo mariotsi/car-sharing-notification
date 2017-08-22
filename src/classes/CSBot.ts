@@ -2,6 +2,7 @@ import * as TeleBot from 'telebot';
 import * as distanceInWords from 'date-fns/distance_in_words';
 import * as oAuth from './oAuth';
 import * as firebase from './Firebase';
+import * as Users from './Users';
 
 class Bot {
   private bot: TeleBot;
@@ -33,7 +34,7 @@ class Bot {
     this.bot.on('/start', async (msg) => {
       const splittedMessage = msg.text.split(' ');
       if (splittedMessage.length === 1) {
-        // first time connecting, still not authenticated
+        // first time connecting, still not authenticated or reactivating old user
         await oAuth.manageNewUser({
           telegramId: msg.from.id,
           firstName: msg.from.first_name,
@@ -47,6 +48,14 @@ class Bot {
         this.sendToMaster('New User: ' + JSON.stringify(newUser));
       }
       console.log(msg);
+    });
+
+    this.bot.on('/stop', async (msg) => {
+      await Users.deactivate(msg.from.id);
+      this.sendMessage(
+        'You will not receive any other notification. In order to reactivate notifications type /start',
+        msg.from.id
+      );
     });
   }
 

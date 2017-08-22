@@ -30,8 +30,11 @@ async function getUser(telegramId: number) {
   }
 }
 
-async function updateUser(user: any) {
+async function updateUser(user: any, updateInfo?: any) {
   try {
+    if (typeof user === 'number') {
+      user = Object.assign(await getUser(user), updateInfo);
+    }
     await db.updateUser(user);
     users.set(user.telegramId, user);
   } catch (e) {
@@ -39,4 +42,8 @@ async function updateUser(user: any) {
   }
 }
 
-export {loadUsers, users as list, getUser, updateUser};
+async function deactivate(telegramId: number) {
+  await updateUser(telegramId, {active: false});
+}
+
+export {loadUsers, users as list, getUser, updateUser, deactivate};

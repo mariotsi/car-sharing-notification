@@ -74,9 +74,12 @@ async function authenticateUser(user: any) {
 }
 
 async function manageNewUser(user: any) {
-  if (await Users.getUser(user.telegramId)) {
+  const localuser = await Users.getUser(user.telegramId);
+  if (localuser) {
     // He is a recurring user
-    return bot.sendMessage(`Welcome back ${user.firstName} 🎉`, user.telegramId);
+    localuser.active = true;
+    Users.updateUser(localuser);
+    return bot.sendMessage(`Welcome back ${localuser.firstName} 🎉`, localuser.telegramId);
     // TODO check if still authenticated
   }
   await authenticateUser(user);

@@ -37,6 +37,18 @@ export async function getAllUsers() {
   return getUsers(true);
 }
 
+export async function addNotificationToUser(telegramId: number, message: string, data: Interfaces.parsedData) {
+  try {
+    // Check if we already saved that notification (should happen only in dev mode)
+    const alreadySaved = !!await usersColl.findOne({telegramId, 'notifications.id': data.id});
+    if (!alreadySaved) {
+      usersColl.updateOne({telegramId}, {$push: {notifications: {id: data.id, message, data}}});
+    }
+  } catch (e) {
+    console.log('Cannot add notification to user', telegramId, message);
+  }
+}
+
 export async function updateUser(user: any) {
   return usersColl.updateOne({telegramId: user.telegramId}, user, {upsert: true});
 }

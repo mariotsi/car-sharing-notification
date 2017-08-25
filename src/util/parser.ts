@@ -1,4 +1,5 @@
 import {templates} from './templates';
+import {v4 as uuidV4} from 'uuid';
 /* eslint-disable no-unused-vars */
 import Email from '../classes/Email';
 /* eslint-enable no-unused-vars */
@@ -29,18 +30,26 @@ function parse(email: Email) {
     date: email.date.value,
   });
   if (Object.keys(parsedData).length && parsedData.total) {
-    console.log(`Email from ${email.sender.value} id: ${parsedData.id} - Sending notification`, parsedData);
+    parsedData.uuid = uuidV4();
+    console.log(
+      `Notification to ${parsedData.telegramId}. 
+      Email from ${parsedData.longName} - Total €${parsedData.total} - ${parsedData.id}`
+    );
   } else if (!parsedData.total) {
-    console.log(`Email from ${email.sender.value} id: ${email.id} - No total found`, parsedData);
+    console.log(
+      `User ${parsedData.telegramId}. Email from ${parsedData.longName} - No total found - ${parsedData.id}`
+    );
     parsedData = {
       error: 'No total found',
       parsedData: JSON.stringify(parsedData),
     };
   } else {
-    console.log(`Email from ${email.sender.value} id: ${email.id} - No data found`, email);
+    console.log(
+      `User ${parsedData.telegramId}. Email from ${parsedData.longName} - No data found - ${parsedData.id}`
+    );
     parsedData = {
       error: 'No data found',
-      rawData: JSON.stringify(email),
+      rawData: JSON.stringify(email.body),
     };
   }
   email.parsedData = parsedData;

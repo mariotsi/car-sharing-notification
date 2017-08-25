@@ -1,6 +1,7 @@
 import {parseEmailBody, emailsToFilter, fillTemplate} from './util';
 import * as nodeUtil from 'util';
 import * as firebase from './classes/Firebase';
+import * as db from './classes/db';
 import * as oAuth from './classes/oAuth';
 
 const google = require('googleapis');
@@ -71,12 +72,14 @@ async function handleNewMessage(messageId: string, telegramId: number) {
 
 const sendNotification = (parsedData: Interfaces.parsedData, to: number) => {
   const message = fillTemplate(parsedData);
+  parsedData.sent = new Date().toISOString();
   bot.sendMessage(message, to);
+  db.addNotificationToUser(to, message, parsedData);
   firebase.set(`emailIds/${parsedData.id}`, parsedData);
 };
 
 const getEmail = async (emailId: string, telegramId: number) => {
-  console.log('New email', emailId);
+  // console.log(`User ${telegramId} - Got new email ${emailId}`);
   firebase.set(`emailIds/${emailId}`, 'Processing...');
   try {
     return new Email(

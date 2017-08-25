@@ -80,12 +80,12 @@ async function authenticateUser(user: any, expired?: boolean) {
 }
 
 async function manageNewUser(user: any) {
-  const localuser = await Users.getUser(user.telegramId);
-  if (localuser) {
+  const localUser = await Users.getUser(user.telegramId);
+  if (localUser) {
     // He is a recurring user
-    localuser.active = true;
-    Users.updateUser(localuser);
-    return bot.sendMessage(`Welcome back ${localuser.firstName} 🎉`, localuser.telegramId);
+    localUser.active = true;
+    Users.updateUser(localUser);
+    return bot.sendMessage(`Welcome back ${localUser.firstName} 🎉`, localUser.telegramId);
     // TODO check if still authenticated
   }
   await authenticateUser(user);

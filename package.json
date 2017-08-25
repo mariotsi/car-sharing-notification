@@ -12,6 +12,7 @@
     "@types/request": "^2.0.0",
     "@types/request-promise": "^4.1.36",
     "@types/telebot": "^1.2",
+    "@types/uuid": "^3.4.1",
     "date-fns": "1.x",
     "firebase-admin": "^4.1.4",
     "google-auth-library": "^0.10.0",
@@ -21,7 +22,8 @@
     "request": "^2.81.0",
     "request-promise": "^4.2.1",
     "telebot": "^1.2.3",
-    "typescript": "^2.4.2"
+    "typescript": "^2.4.2",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "eslint": "^4.3.0",

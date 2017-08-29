@@ -3,8 +3,8 @@ import {MongoClient} from 'mongodb';
 let usersColl: any;
 // let messages;
 // Connection url
-const url = 'mongodb://localhost:27017/csn';
-
+const url = process.env.MONGODB_URI;
+console.log(url);
 async function load() {
   try {
     const db = await MongoClient.connect(url);

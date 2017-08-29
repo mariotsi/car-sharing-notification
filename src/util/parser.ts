@@ -27,7 +27,7 @@ function parse(email: Email) {
     telegramId: email.telegramId,
     strategy: strategy,
     sender: email.sender.value,
-    date: email.date.value,
+    date: email.date,
   });
   if (Object.keys(parsedData).length && parsedData.total) {
     parsedData.uuid = uuidV4();

@@ -3,11 +3,11 @@ import * as oAuth from './classes/oAuth';
 import * as Users from './classes/Users';
 
 function chronTask() {
-  Users.list.forEach(async (v, k) => {
+  Users.list.forEach(async (v) => {
     if (v.active) {
       if (v.tokens && v.tokens.access_token) {
         oAuth.setCredentials(v.tokens);
-        await checkNewEmails(k);
+        await checkNewEmails(v);
       } else if (!v.authInProgress) {
         oAuth.authenticateUser(v);
       }

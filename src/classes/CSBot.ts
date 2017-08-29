@@ -37,7 +37,7 @@ class Bot {
       const recurringUser = !!await Users.getUser(msg.from.id.telegramId);
       if (splittedMessage.length === 1) {
         // first time connecting, still not authenticated or reactivating old user
-        await oAuth.manageNewUser({
+        await Users.handleStart({
           telegramId: msg.from.id,
           firstName: msg.from.first_name,
           lastName: msg.from.last_name,

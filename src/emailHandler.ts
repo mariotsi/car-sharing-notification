@@ -1,4 +1,5 @@
 import {parseEmailBody, emailsToFilter, fillTemplate} from './util';
+import {isAfter} from 'date-fns';
 import * as nodeUtil from 'util';
 import * as firebase from './classes/Firebase';
 import * as db from './classes/db';
@@ -16,7 +17,7 @@ const isDev = process.env.dev === 'true';
 
 // let jwtClient: any;
 
-const checkNewEmails = async (telegramId: number, pageToken?: string) => {
+const checkNewEmails = async (user: any, pageToken?: string) => {
   try {
     const response: Gmail.response = await emails.listPromisified({
       auth: oAuth.getClient(),
@@ -36,38 +37,40 @@ const checkNewEmails = async (telegramId: number, pageToken?: string) => {
       console.log('Getting updated Ids from DB, from now on using cache');
       (Object.keys(snapshot.val() || {}) || []).map(firebase.localSavedIds.add);
     }
-    await filterNewMessages(telegramId, response.messages, response.nextPageToken);
+    await filterNewMessages(user, response.messages, response.nextPageToken);
   } catch (e) {
     console.log('The API returned an error: ' + e);
     if (e.code === 401) {
-      await oAuth.authenticateUser(telegramId, true);
+      await oAuth.authenticateUser(user.telegramId, true);
     }
   }
 };
 
-async function filterNewMessages(telegramId: number, messages: Gmail.email[], nextPageToken: string) {
+async function filterNewMessages(user: any, messages: Gmail.email[], nextPageToken: string) {
   await Promise.all(
     messages.reduce((acc, {id}) => {
       if (!firebase.localSavedIds.has(id)) {
         // console.log('new message', message);
         firebase.localSavedIds.add(id);
-        acc.push(handleNewMessage(id, telegramId));
+        acc.push(handleNewMessage(id, user));
       }
       return acc;
     }, [])
   );
-  !!nextPageToken && checkNewEmails(telegramId, nextPageToken);
+  !!nextPageToken && checkNewEmails(user, nextPageToken);
 }
 
-async function handleNewMessage(messageId: string, telegramId: number) {
-  const email = await getEmail(messageId, telegramId);
+async function handleNewMessage(messageId: string, user: any) {
+  const email = await getEmail(messageId, user.telegramId);
 
   parseEmailBody(email);
   if (email.parsedData.error) {
     firebase.set(`emailIds/${email.id}`, email.parsedData);
     return;
   }
-  sendNotification(email.parsedData, telegramId);
+  if (isAfter(email.date, user.joined)) {
+    sendNotification(email.parsedData, user.telegramId);
+  }
 }
 
 const sendNotification = (parsedData: Interfaces.parsedData, to: number) => {

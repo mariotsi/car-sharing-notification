@@ -79,16 +79,4 @@ async function authenticateUser(user: any, expired?: boolean) {
   await bot.sendLoginMessage(user.telegramId, true);
 }
 
-async function manageNewUser(user: any) {
-  const localUser = await Users.getUser(user.telegramId);
-  if (localUser) {
-    // He is a recurring user
-    localUser.active = true;
-    Users.updateUser(localUser);
-    return bot.sendMessage(`Welcome back ${localUser.firstName} 🎉`, localUser.telegramId);
-    // TODO check if still authenticated
-  }
-  await authenticateUser(user);
-}
-
-export {manageNewUser, getOAuthUrl, getAndSaveTokens, getClient, setCredentials, authenticateUser};
+export {getOAuthUrl, getAndSaveTokens, getClient, setCredentials, authenticateUser};

@@ -45,7 +45,7 @@ export default class Email {
   }
 
   get date() {
-    return this.payload.headers.find((item) => item.name === 'Date');
+    return new Date(this.internalDate).toISOString();
   }
 
   get body() {

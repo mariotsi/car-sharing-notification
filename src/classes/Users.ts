@@ -1,4 +1,6 @@
 import * as db from './db';
+import bot from './CSBot';
+import * as oAuth from './oAuth';
 
 const users: Map<number, any> = new Map();
 
@@ -46,4 +48,16 @@ async function deactivate(telegramId: number) {
   await updateUser(telegramId, {active: false});
 }
 
-export {loadUsers, users as list, getUser, updateUser, deactivate};
+async function handleStart(user: any) {
+  const localUser = await getUser(user.telegramId);
+  if (localUser) {
+    // He is a recurring user
+    localUser.active = true;
+    updateUser(localUser);
+    return bot.sendMessage(`Welcome back ${localUser.firstName} 🎉`, localUser.telegramId);
+    // TODO check if still authenticated
+  }
+  await oAuth.authenticateUser(user);
+}
+
+export {loadUsers, users as list, getUser, updateUser, deactivate, handleStart};

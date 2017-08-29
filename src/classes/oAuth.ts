@@ -10,7 +10,7 @@ const OAuth2 = require('googleapis').auth.OAuth2;
 const oauth2Client = new OAuth2(
   process.env['OAUTH:clientId'],
   process.env['OAUTH:clientSecret'],
-  process.env['dev'] === 'true' ? process.env['OAUTH:localRedirectUrl'] : process.env['OAUTH:redirectUrl']
+  process.env['OAUTH:redirectUrl']
 );
 
 oauth2Client.getTokenPromisified = nodeUtil.promisify(oauth2Client.getToken);

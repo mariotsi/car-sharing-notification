@@ -35,9 +35,12 @@ const getOAuthUrl = async (telegramId: number | string) => {
       },
       json: true,
     });
-    return res.data.url;
+    if (res.status_code < 300) {
+      return res.data.url;
+    }
+    console.log('Bit.ly error', res);
   } catch (e) {
-    console.log(JSON.stringify(e));
+    console.log('Bit.ly error', e);
   }
 };
 

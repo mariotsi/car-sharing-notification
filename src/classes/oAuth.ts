@@ -79,7 +79,7 @@ async function authenticateUser(user: any, expired?: boolean) {
     user.joined = new Date().toISOString();
   }
   await db.updateUser(user);
-  await bot.sendLoginMessage(user.telegramId, true);
+  await bot.sendLoginMessage(user.telegramId, expired);
 }
 
 export {getOAuthUrl, getAndSaveTokens, getClient, setCredentials, authenticateUser};

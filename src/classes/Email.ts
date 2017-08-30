@@ -45,7 +45,7 @@ export default class Email {
   }
 
   get date() {
-    return new Date(this.internalDate).toISOString();
+    return new Date(Number(this.internalDate)).toISOString();
   }
 
   get body() {

@@ -24,10 +24,10 @@ const checkNewEmails = async (user: any, pageToken?: string) => {
       userId: 'me',
       pageToken,
       q: `from:(${emailsToFilter.join('||')})`,
-      maxResults: isDev ? 10 : 500,
+      maxResults: 5,
     });
     // Blocking requests on dev env
-    if (isDev) {
+    if (isDev && false) {
       response.nextPageToken = null;
     }
 
@@ -70,6 +70,8 @@ async function handleNewMessage(messageId: string, user: any) {
   }
   if (isAfter(email.date, user.joined)) {
     sendNotification(email.parsedData, user.telegramId);
+  } else {
+    console.log(`Notification to ${user.telegramId} about email ${email.id} not sent because is too old`);
   }
 }
 
@@ -78,7 +80,7 @@ const sendNotification = (parsedData: Interfaces.parsedData, to: number) => {
   parsedData.sent = new Date().toISOString();
   bot.sendMessage(message, to);
   db.addNotificationToUser(to, message, parsedData);
-  firebase.set(`emailIds/${parsedData.id}`, parsedData);
+  firebase.set(`emailIds/${parsedData.d}`, parsedData);
 };
 
 const getEmail = async (emailId: string, telegramId: number) => {

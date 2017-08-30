@@ -57,7 +57,7 @@ const getAndSaveTokens = async (code: string, telegramId: number) => {
     // return oauth2Client;
     return user;
   } catch (e) {
-    console.log('Error during token exchange', e);
+    console.log('Error during token exchange', e.code, e.message);
   }
 };
 

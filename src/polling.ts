@@ -5,10 +5,14 @@ import * as Users from './classes/Users';
 function chronTask() {
   Users.list.forEach(async (v) => {
     if (v.active) {
+      console.log(`Polling user ${v.telegramId}`);
       if (v.tokens && v.tokens.access_token) {
+        console.log(`User ${v.telegramId}: authenticated, checking emails`);
         oAuth.setCredentials(v.tokens);
         await checkNewEmails(v);
+        console.log(`User ${v.telegramId}: all emails checked`);
       } else if (!v.authInProgress) {
+        console.log(`User ${v.telegramId}: not authenticated, asking to reauth`);
         oAuth.authenticateUser(v);
       }
     }

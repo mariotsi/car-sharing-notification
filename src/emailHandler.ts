@@ -35,7 +35,7 @@ const checkNewEmails = async (user: any, pageToken?: string) => {
     if (!isDev && !firebase.localSavedIds.size) {
       console.log('Getting updated Ids from DB...');
       const snapshot = await firebase.onceValue('emailIds');
-      (Object.keys(snapshot.val() || {}) || []).map((v) => firebase.localSavedIds.add(v));
+      (Object.keys(snapshot.val() || {}) || []).map((key) => firebase.localSavedIds.add(key));
       console.log('Local cache filled from firebase, from now on using it');
     }
     await filterNewMessages(user, response.messages, response.nextPageToken);

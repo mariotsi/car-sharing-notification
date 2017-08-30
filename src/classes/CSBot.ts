@@ -101,9 +101,10 @@ class Bot {
 }
 
 async function updateIds() {
+  console.log('FORCED - FORCED - Getting updated Ids from DB');
   const snapshot = await firebase.onceValue('emailIds');
-  console.log('FORCED - Getting updated Ids from DB, from now on using cache');
   (Object.keys(snapshot.val() || {}) || []).map((key) => firebase.localSavedIds.add(key));
+  console.log('FORCED - Local cache filled from firebase, from now on using it');
 }
 
 const bot = new Bot();

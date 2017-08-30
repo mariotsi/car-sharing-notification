@@ -40,6 +40,8 @@ declare namespace Interfaces {
     rawData?: any;
     total?: string;
     type?: string;
+    uuid?: string;
+    sent?: string;
     [name: string]: string;
   }
 

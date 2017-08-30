@@ -10,6 +10,7 @@ export default class Email {
   labelIds: string[];
   snippet: string;
   historyId: number;
+  telegramId: number;
   internalDate: number;
   payload: {
     partId: string;
@@ -26,8 +27,9 @@ export default class Email {
   raw: Buffer;
   parsedData: Interfaces.parsedData;
 
-  constructor(email: any) {
+  constructor(email: any, telegramId: number) {
     Object.assign(this, email);
+    this.telegramId = telegramId;
   }
 
   get bodyData() {
@@ -43,7 +45,7 @@ export default class Email {
   }
 
   get date() {
-    return this.payload.headers.find((item) => item.name === 'Date');
+    return new Date(Number(this.internalDate)).toISOString();
   }
 
   get body() {

@@ -40,7 +40,7 @@ const getOAuthUrl = async (telegramId: number | string) => {
     }
     console.log('Bit.ly error', res);
   } catch (e) {
-    console.log('Bit.ly error', e);
+    console.error('Bit.ly error', e);
   }
 };
 
@@ -52,12 +52,13 @@ const getAndSaveTokens = async (code: string, telegramId: number) => {
     user.tokens = tokens;
     user.authDate = new Date().toISOString();
     await Users.updateUser(user);
+    console.log(`User ${telegramId} now is authenticated`);
     // Now tokens contains an access_token and an optional refresh_token. Save them.
     // oauth2Client.setCredentials(tokens);
     // return oauth2Client;
     return user;
   } catch (e) {
-    console.log('Error during token exchange', e.code, e.message);
+    console.error('Error during token exchange', e.code, e.message);
   }
 };
 

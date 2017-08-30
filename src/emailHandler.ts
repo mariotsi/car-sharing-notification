@@ -33,14 +33,15 @@ const checkNewEmails = async (user: any, pageToken?: string) => {
 
     // Using cache after first DB Synch in order to don't exaust the free tier of Firebase DB
     if (!isDev && !firebase.localSavedIds.size) {
+      console.log('Getting updated Ids from DB...');
       const snapshot = await firebase.onceValue('emailIds');
-      console.log('Getting updated Ids from DB, from now on using cache');
       (Object.keys(snapshot.val() || {}) || []).map((v) => firebase.localSavedIds.add(v));
+      console.log('Local cache filled from firebase, from now on using it');
     }
     await filterNewMessages(user, response.messages, response.nextPageToken);
   } catch (e) {
-    console.log('The API returned an error: ' + e);
-    if (e.code === 401) {
+    console.log('Error checking new email: ' + e.code ? e.code + ' ' + e.message : e);
+    if (e.code === 401 || (e.code === 400 && e.message === 'invalid_request')) {
       await oAuth.authenticateUser(user.telegramId, true);
     }
   }
@@ -96,7 +97,7 @@ const getEmail = async (emailId: string, telegramId: number) => {
       telegramId
     );
   } catch (err) {
-    console.log('The API returned an error: ' + err);
+    console.error('The API returned an error: ' + err);
     firebase.set(`emailIds/${emailId}`, {error: 'Error retrieving email from Gmail'});
   }
 };

@@ -27,7 +27,7 @@ const checkNewEmails = async (user: any, pageToken?: string) => {
       maxResults: 5,
     });
     // Blocking requests on dev env
-    if (isDev && false) {
+    if (isDev) {
       response.nextPageToken = null;
     }
 

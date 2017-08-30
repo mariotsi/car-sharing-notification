@@ -65,10 +65,7 @@ async function handleNewMessage(messageId: string, user: any) {
   const email = await getEmail(messageId, user.telegramId);
 
   parseEmailBody(email);
-  if (email.parsedData.error) {
-    firebase.set(`emailIds/${email.id}`, email.parsedData);
-    return;
-  }
+  firebase.set(`emailIds/${email.id}`, email.parsedData);
   if (isAfter(email.date, user.joined)) {
     sendNotification(email.parsedData, user.telegramId);
   } else {

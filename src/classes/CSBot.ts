@@ -33,9 +33,11 @@ class Bot {
     });
 
     this.bot.on('/start', async (msg) => {
+      console.log(`Received /start from ${msg.from.id}`);
       const splittedMessage = msg.text.split(' ');
       const recurringUser = !!await Users.getUser(msg.from.id.telegramId);
       if (splittedMessage.length === 1) {
+        console.log(`No token with the start command`);
         // first time connecting, still not authenticated or reactivating old user
         await Users.handleStart({
           telegramId: msg.from.id,
@@ -46,10 +48,10 @@ class Bot {
         });
       } else {
         const code = new Buffer(msg.text.split(' ')[1], 'base64').toString();
+        console.log(`Received token ${code} for ${msg.from.id}`);
         const newUser = await oAuth.getAndSaveTokens(code, msg.from.id);
         !recurringUser && this.sendToMaster('New User: ' + JSON.stringify(newUser));
       }
-      console.log(msg);
     });
 
     this.bot.on('/stop', async (msg) => {

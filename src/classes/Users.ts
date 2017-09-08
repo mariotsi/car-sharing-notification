@@ -6,7 +6,7 @@ const users: Map<number, any> = new Map();
 
 async function loadUsers() {
   const dbUsers: any[] = await db.getUsers();
-  dbUsers.forEach((item) => users.set(item.telegramId, item));
+  dbUsers.forEach((item) => users.set(Number(item.telegramId), item));
   /* users.set(Number(process.env['TELEGRAM:clientId']), {
     tokens2: {
       access_token: '',
@@ -38,7 +38,7 @@ async function updateUser(user: any, updateInfo?: any) {
       user = Object.assign(await getUser(user), updateInfo);
     }
     await db.updateUser(user);
-    users.set(user.telegramId, user);
+    users.set(Number(user.telegramId), user);
   } catch (e) {
     console.log('Error updating user ' + user.telegramId, e);
   }

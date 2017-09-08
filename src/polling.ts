@@ -14,6 +14,8 @@ function chronTask() {
       } else if (!v.authInProgress) {
         console.log(`User ${v.telegramId}: not authenticated, asking to reauth`);
         oAuth.authenticateUser(v);
+      } else {
+        console.log(`User ${v.telegramId}: not authenticated, but auth in progress. Skipping`);
       }
     }
   });

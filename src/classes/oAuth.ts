@@ -75,6 +75,7 @@ async function authenticateUser(user: any, expired?: boolean) {
     user = await Users.getUser(user);
     user.tokens = undefined;
   }
+  console.log(`Asking ${user.telegramId} to authenticate`);
   await bot.sendLoginMessage(user.telegramId, expired);
   user.authInProgress = true;
   if (!user.joined) {

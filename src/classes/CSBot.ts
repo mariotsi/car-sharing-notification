@@ -69,9 +69,9 @@ class Bot {
 
   async getName() {
     this.name = await this.bot.getMe();
-    this.sendToMaster(
+    /*this.sendToMaster(
       `I'm fine after restart 🎉 \n\nBot name: ${this.name.first_name}\nBot username: ${this.name.username}`
-    );
+    );*/
   }
 
   sendToMaster(message: string, options: any = {parseMode: 'HTML'}) {

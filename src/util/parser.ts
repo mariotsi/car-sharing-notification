@@ -41,6 +41,7 @@ function parse(email: Email) {
     );
     parsedData = {
       error: 'No total found',
+      unparsedData: email.body,
       parsedData: JSON.stringify(parsedData),
     };
   } else {
@@ -49,6 +50,7 @@ function parse(email: Email) {
     );
     parsedData = {
       error: 'No data found',
+      unparsedData: email.body,
       rawData: JSON.stringify(email.body),
     };
   }

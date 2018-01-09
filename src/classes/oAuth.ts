@@ -79,6 +79,7 @@ async function authenticateUser(user: any, expired?: boolean) {
   console.log(`Asking ${user.telegramId} to authenticate`);
   await bot.sendLoginMessage(user.telegramId, expired);
   user.authInProgress = true;
+  user.active = true;
   if (!user.joined) {
     user.joined = new Date().toISOString();
   }

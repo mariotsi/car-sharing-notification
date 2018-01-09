@@ -50,7 +50,6 @@ const checkNewEmails = async (user: any, pageToken?: string) => {
 async function filterNewMessages(user: any, messages: Gmail.email[], nextPageToken: string) {
   await Promise.all(
     messages.reduce((acc, {id}) => {
-      console.log(`User ${user.telegramId} - ${id}`);
       if (!firebase.localSavedIds.has(id)) {
         // console.log('new message', message);
         firebase.localSavedIds.add(id);

@@ -47,6 +47,7 @@ const getOAuthUrl = async (telegramId: number | string) => {
 const getAndSaveTokens = async (code: string, telegramId: number) => {
   try {
     const tokens = await oauth2Client.getTokenPromisified(code);
+    console.log(`User ${telegramId} correctly exchanged code for token`);
     const user = await Users.getUser(telegramId);
     user.authInProgress = false;
     user.tokens = tokens;
@@ -58,7 +59,7 @@ const getAndSaveTokens = async (code: string, telegramId: number) => {
     // return oauth2Client;
     return user;
   } catch (e) {
-    console.error('Error during token exchange', e.code, e.message);
+    console.error('Error during token exchange', JSON.stringify(e));
   }
 };
 

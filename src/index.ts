@@ -25,18 +25,18 @@ const jwtClient = new auth.JWTClient(
 http
   .createServer(async function(req, res) {
     const pathName = url.parse(req.url).pathname;
-    const query = querystring.parse(url.parse(req.url).query);
+    const query = querystring.parse('' + url.parse(req.url).query);
     if (pathName === '/oauth_cb') {
       res.writeHead(301, {
-        Location: `https://telegram.me/car_sharing_bot?start=${new Buffer(query.code).toString('base64')}`,
+        Location: `https://telegram.me/car_sharing_bot?start=${new Buffer('' + query.code).toString('base64')}`,
       });
       res.end();
       /* request.get(`https://telegram.me/car_sharing_bot?start=${query.code}`,{},(e,a)=>{
-        console.log(a);
-        res.end(`Server is up on ${req.headers.host} ${JSON.stringify(query)}`)
+              console.log(a);
+              res.end(`Server is up on ${req.headers.host} ${JSON.stringify(query)}`)
 
-      }
-      );*/
+            }
+            );*/
     }
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end('Server is up');

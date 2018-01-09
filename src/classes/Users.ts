@@ -6,6 +6,7 @@ const users: Map<number, any> = new Map();
 
 async function loadUsers() {
   const dbUsers: any[] = await db.getUsers();
+  console.log('DB_USER', dbUsers);
   dbUsers.forEach((item) => users.set(Number(item.telegramId), item));
   /* users.set(Number(process.env['TELEGRAM:clientId']), {
     tokens2: {

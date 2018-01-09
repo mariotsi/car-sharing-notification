@@ -63,15 +63,18 @@ async function filterNewMessages(user: any, messages: Gmail.email[], nextPageTok
 
 async function handleNewMessage(messageId: string, user: any) {
   const email = await getEmail(messageId, user.telegramId);
-  console.log(`User ${user.telegramId} - Received email ${messageId} from Gmail. Start parsing`);
-  console.log('' + messageId + JSON.stringify(email));
-  parseEmailBody(email);
-  console.log(`User ${user.telegramId} - Email ${messageId} correctly parsed`);
-  firebase.set(`emailIds/${email.id}`, email.parsedData);
-  if (isAfter(email.date, user.joined)) {
-    sendNotification(email.parsedData, user.telegramId);
+  if (email) {
+    console.log(`User ${user.telegramId} - Received email ${messageId} from Gmail. Start parsing`);
+    parseEmailBody(email);
+    console.log(`User ${user.telegramId} - Email ${messageId} correctly parsed`);
+    firebase.set(`emailIds/${email.id}`, email.parsedData);
+    if (isAfter(email.date, user.joined)) {
+      sendNotification(email.parsedData, user.telegramId);
+    } else {
+      console.log(`Notification to ${user.telegramId} about email ${email.id} not sent because is too old`);
+    }
   } else {
-    console.log(`Notification to ${user.telegramId} about email ${email.id} not sent because is too old`);
+    console.log(`User ${user.telegramId} - Email ${messageId} is no more available`);
   }
 }
 

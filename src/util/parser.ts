@@ -11,8 +11,10 @@ function parse(email: Email) {
   for (let regex of Object.keys((regexs = (templates[strategy] || {regexs: null}).regexs || {}))) {
     let result;
     while ((result = regexs[regex].exec(email.body || '')) != null) {
-      console.log(result);
       result.shift();
+      while (!result[0]) {
+        result.shift();
+      }
       result[0] = result[0].replace(',', '.');
       // Sum due to double invoices in some email
       parsedData[regex] = parsedData[regex]

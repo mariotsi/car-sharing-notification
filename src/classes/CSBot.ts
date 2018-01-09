@@ -69,9 +69,9 @@ class Bot {
 
   async getName() {
     this.name = await this.bot.getMe();
-    /*this.sendToMaster(
-      `I'm fine after restart 🎉 \n\nBot name: ${this.name.first_name}\nBot username: ${this.name.username}`
-    );*/
+    /* this.sendToMaster(
+          `I'm fine after restart 🎉 \n\nBot name: ${this.name.first_name}\nBot username: ${this.name.username}`
+        );*/
   }
 
   sendToMaster(message: string, options: any = {parseMode: 'HTML'}) {
@@ -103,6 +103,7 @@ class Bot {
 async function updateIds() {
   console.log('FORCED - FORCED - Getting updated Ids from DB');
   const snapshot = await firebase.onceValue('emailIds');
+  firebase.localSavedIds.clear();
   (Object.keys(snapshot.val() || {}) || []).map((key) => firebase.localSavedIds.add(key));
   console.log('FORCED - Local cache filled from firebase, from now on using it');
 }

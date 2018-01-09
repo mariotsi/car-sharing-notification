@@ -38,7 +38,7 @@ const checkNewEmails = async (user: any, pageToken?: string) => {
       (Object.keys(snapshot.val() || {}) || []).map((key) => firebase.localSavedIds.add(key));
       console.log('Local cache filled from firebase, from now on using it');
     }
-    await filterNewMessages(user, response.messages, response.nextPageToken);
+    await filterNewMessages(user, response.messages || [], response.nextPageToken);
   } catch (e) {
     console.log('Error checking new email: ' + e.code ? e.code + ' ' + e.message : e);
     if (e.code === 401 || (e.code === 400 && e.message === 'invalid_request')) {
@@ -63,8 +63,9 @@ async function filterNewMessages(user: any, messages: Gmail.email[], nextPageTok
 
 async function handleNewMessage(messageId: string, user: any) {
   const email = await getEmail(messageId, user.telegramId);
-
+  console.log(`User ${user.telegramId} - Received email ${messageId} from Gmail. Starting parsing`);
   parseEmailBody(email);
+  console.log(`User ${user.telegramId} - Email ${messageId} correctly parsed`);
   firebase.set(`emailIds/${email.id}`, email.parsedData);
   if (isAfter(email.date, user.joined)) {
     sendNotification(email.parsedData, user.telegramId);
@@ -82,7 +83,7 @@ const sendNotification = (parsedData: Interfaces.parsedData, to: number) => {
 };
 
 const getEmail = async (emailId: string, telegramId: number) => {
-  // console.log(`User ${telegramId} - Got new email ${emailId}`);
+  console.log(`User ${telegramId} - Asking new email ${emailId} to Gmail`);
   firebase.set(`emailIds/${emailId}`, 'Processing...');
   try {
     return new Email(

@@ -50,6 +50,7 @@ const checkNewEmails = async (user: any, pageToken?: string) => {
 async function filterNewMessages(user: any, messages: Gmail.email[], nextPageToken: string) {
   await Promise.all(
     messages.reduce((acc, {id}) => {
+      console.log(`User ${user.telegramId} - ${id}`);
       if (!firebase.localSavedIds.has(id)) {
         // console.log('new message', message);
         firebase.localSavedIds.add(id);
@@ -63,7 +64,7 @@ async function filterNewMessages(user: any, messages: Gmail.email[], nextPageTok
 
 async function handleNewMessage(messageId: string, user: any) {
   const email = await getEmail(messageId, user.telegramId);
-  console.log(`User ${user.telegramId} - Received email ${messageId} from Gmail. Starting parsing`);
+  console.log(`User ${user.telegramId} - Received email ${messageId} from Gmail. Start parsing`);
   parseEmailBody(email);
   console.log(`User ${user.telegramId} - Email ${messageId} correctly parsed`);
   firebase.set(`emailIds/${email.id}`, email.parsedData);

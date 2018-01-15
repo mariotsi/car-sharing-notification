@@ -17,10 +17,10 @@ const isDev = process.env.dev === 'true';
 
 // let jwtClient: any;
 
-const checkNewEmails = async (user: any, pageToken?: string) => {
+const checkNewEmails = async (user: any, client: any, pageToken?: string) => {
   try {
     const response: Gmail.response = await emails.listPromisified({
-      auth: oAuth.getClient(user.telegramId),
+      auth: client,
       userId: 'me',
       pageToken,
       q: `from:(${emailsToFilter.join('||')})`,
@@ -38,7 +38,7 @@ const checkNewEmails = async (user: any, pageToken?: string) => {
       (Object.keys(snapshot.val() || {}) || []).map((key) => firebase.localSavedIds.add(key));
       console.log('Local cache filled from firebase, from now on using it');
     }
-    await filterNewMessages(user, response.messages || [], response.nextPageToken);
+    await filterNewMessages(client, user, response.messages || [], response.nextPageToken);
   } catch (e) {
     console.log('Error checking new email: ' + e.code ? e.code + ' ' + e.message : e);
     if (e.code === 401 || (e.code === 400 && e.message === 'invalid_request')) {
@@ -47,22 +47,22 @@ const checkNewEmails = async (user: any, pageToken?: string) => {
   }
 };
 
-async function filterNewMessages(user: any, messages: Gmail.email[], nextPageToken: string) {
+async function filterNewMessages(client: any, user: any, messages: Gmail.email[], nextPageToken: string) {
   await Promise.all(
     messages.reduce((acc, {id}) => {
       if (!firebase.localSavedIds.has(id)) {
         // console.log('new message', message);
         firebase.localSavedIds.add(id);
-        acc.push(handleNewMessage(id, user));
+        acc.push(handleNewMessage(client, id, user));
       }
       return acc;
     }, [])
   );
-  !!nextPageToken && checkNewEmails(user, nextPageToken);
+  !!nextPageToken && checkNewEmails(user, client, nextPageToken);
 }
 
-async function handleNewMessage(messageId: string, user: any) {
-  const email = await getEmail(messageId, user.telegramId);
+async function handleNewMessage(client: any, messageId: string, user: any) {
+  const email = await getEmail(client, messageId, user.telegramId);
   if (email) {
     console.log(`User ${user.telegramId} - Received email ${messageId} from Gmail. Start parsing`);
     parseEmailBody(email);
@@ -86,13 +86,13 @@ const sendNotification = (parsedData: Interfaces.parsedData, to: number) => {
   firebase.set(`emailIds/${parsedData.d}`, parsedData);
 };
 
-const getEmail = async (emailId: string, telegramId: number) => {
+const getEmail = async (client: any, emailId: string, telegramId: number) => {
   console.log(`User ${telegramId} - Asking new email ${emailId} to Gmail`);
   firebase.set(`emailIds/${emailId}`, 'Processing...');
   try {
     return new Email(
       await emails.getPromisified({
-        auth: oAuth.getClient(telegramId),
+        auth: client,
         userId: 'me',
         id: emailId,
       }),

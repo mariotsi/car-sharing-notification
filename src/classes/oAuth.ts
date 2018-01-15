@@ -64,17 +64,18 @@ const getAndSaveTokens = async (code: string, telegramId: number) => {
   }
 };
 
-const setCredentials = (userId: any, tokens: any) => {
+const getClient = (userId: any, tokens: any) => {
   if (clients.has(userId)) {
     clients.get(userId).setCredentials(tokens);
   } else {
-    const newClient = Object.assign(true, {}, oauth2Client);
+    const newClient = new OAuth2(
+      process.env['OAUTH:clientId'],
+      process.env['OAUTH:clientSecret'],
+      process.env['OAUTH:redirectUrl']
+    );
     newClient.setCredentials(tokens);
     clients.set(userId, newClient);
   }
-};
-
-const getClient = (userId: any) => {
   return clients.get(userId);
 };
 
@@ -93,4 +94,4 @@ async function authenticateUser(user: any, expired?: boolean) {
   await db.updateUser(user);
 }
 
-export {getOAuthUrl, getAndSaveTokens, getClient, setCredentials, authenticateUser};
+export {getOAuthUrl, getAndSaveTokens, getClient, authenticateUser};

@@ -8,8 +8,8 @@ function chronTask() {
       console.log(`Polling user ${v.telegramId}`);
       if (v.tokens && v.tokens.access_token) {
         console.log(`User ${v.telegramId}: authenticated, checking emails`);
-        oAuth.setCredentials(v.telegramId, v.tokens);
-        await checkNewEmails(v);
+        // oAuth.setCredentials(v.telegramId, v.tokens);
+        await checkNewEmails(v, oAuth.getClient(v.telegramId, v.tokens));
         console.log(`User ${v.telegramId}: all emails checked`);
       } else if (!v.authInProgress) {
         console.log(`User ${v.telegramId}: not authenticated, asking to reauth`);

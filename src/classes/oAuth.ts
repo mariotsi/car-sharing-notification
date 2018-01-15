@@ -3,6 +3,7 @@ import * as rp from 'request-promise';
 import bot from './CSBot';
 import * as Users from './Users';
 import * as db from './db';
+const clients = new Map();
 
 const bitlyUrl = 'https://api-ssl.bitly.com/v3/shorten';
 
@@ -63,12 +64,18 @@ const getAndSaveTokens = async (code: string, telegramId: number) => {
   }
 };
 
-const setCredentials = (tokens: any) => {
-  oauth2Client.setCredentials(tokens);
+const setCredentials = (userId: any, tokens: any) => {
+  if (clients.has(userId)) {
+    clients.get(userId).setCredentials(tokens);
+  } else {
+    const newClient = Object.assign(true, {}, oauth2Client);
+    newClient.setCredentials(tokens);
+    clients.set(userId, newClient);
+  }
 };
 
-const getClient = () => {
-  return oauth2Client;
+const getClient = (userId: any) => {
+  return clients.get(userId);
 };
 
 async function authenticateUser(user: any, expired?: boolean) {

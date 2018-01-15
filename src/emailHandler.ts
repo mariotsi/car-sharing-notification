@@ -20,7 +20,7 @@ const isDev = process.env.dev === 'true';
 const checkNewEmails = async (user: any, pageToken?: string) => {
   try {
     const response: Gmail.response = await emails.listPromisified({
-      auth: oAuth.getClient(),
+      auth: oAuth.getClient(user.telegramId),
       userId: 'me',
       pageToken,
       q: `from:(${emailsToFilter.join('||')})`,
@@ -92,7 +92,7 @@ const getEmail = async (emailId: string, telegramId: number) => {
   try {
     return new Email(
       await emails.getPromisified({
-        auth: oAuth.getClient(),
+        auth: oAuth.getClient(telegramId),
         userId: 'me',
         id: emailId,
       }),

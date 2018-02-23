@@ -5,27 +5,27 @@ declare namespace Gmail {
   }
 
   interface email {
-    'id': string;
-    'threadId': string;
-    'labelIds': [string];
-    'snippet': string;
-    'historyId': number;
-    'internalDate': number;
-    'payload': {
-      'partId': string;
-      'mimeType': string;
-      'filename': string;
-      'headers': [
+    id: string;
+    threadId: string;
+    labelIds: [string];
+    snippet: string;
+    historyId: number;
+    internalDate: number;
+    payload: {
+      partId: string;
+      mimeType: string;
+      filename: string;
+      headers: [
         {
-          'name': string;
-          'value': string;
+          name: string;
+          value: string;
         }
       ];
-      'body': any;
-      'parts': any[];
+      body: any;
+      parts: any[];
     };
-    'sizeEstimate': number;
-    'raw': Buffer;
+    sizeEstimate: number;
+    raw: Buffer;
   }
 }
 declare namespace Interfaces {
@@ -47,6 +47,7 @@ declare namespace Interfaces {
 
   interface mapEntry {
     longName: string;
+    emailDomain: string;
     regexs: {
       total: RegExp;
       plate?: RegExp;

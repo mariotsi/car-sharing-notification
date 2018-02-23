@@ -27,6 +27,7 @@ const templates: Interfaces.strategyMap = {
   },
   'sharengo': {
     longName: 'Share\'ngo',
+    emailDomain: 'cartasi',
     regexs: {
       total: /Importo\: EUR (\d+[\.\,]\d{2})/g,
     },
@@ -37,6 +38,7 @@ const templates: Interfaces.strategyMap = {
   },
   'mimoto': {
     longName: 'Mimoto',
+    emailDomain: 'cartasi',
     regexs: {
       total: /Importo\: EUR (\d+[\.\,]\d{2})/g,
     },
@@ -87,5 +89,5 @@ const fillTemplate = (context: Interfaces.parsedData) => {
   }
   return template;
 };
-const emailsToFilter = Object.keys(templates);
+const emailsToFilter = Array.from(new Set(Object.keys(templates).map((key) => templates[key].emailDomain || key)));
 export {templates, fillTemplate, emailsToFilter};

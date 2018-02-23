@@ -12,28 +12,38 @@ const templates: Interfaces.strategyMap = {
     },
     // prettier-ignore
     template: '<b>#longName#</b> 🚗\n' +
-              '\n' +
-              'Hai speso #total#€ con l\'auto targata <i>#plate#</i>\n' +
-              'Veicolo: #type#\n' +
-              'Durata: #totalTime#\n' +
-              'Distanza: #distance# km\n',
+        '\n' +
+        'Hai speso #total#€ con l\'auto targata <i>#plate#</i>\n' +
+        'Veicolo: #type#\n' +
+        'Durata: #totalTime#\n' +
+        'Distanza: #distance# km\n',
     // prettier-ignore
     templateScooter: '<b>#longName#</b> 🏍\n' +
-                     '\n' +
-                     'Hai speso #total#€ con lo scooter targato <i>#plate#</i>\n' +
-                     'Veicolo: #type#\n' +
-                     'Durata: #totalTime#\n' +
-                     'Distanza: #distance# km\n',
+        '\n' +
+        'Hai speso #total#€ con lo scooter targato <i>#plate#</i>\n' +
+        'Veicolo: #type#\n' +
+        'Durata: #totalTime#\n' +
+        'Distanza: #distance# km\n',
   },
-  'cartasi': {
+  'sharengo': {
     longName: 'Share\'ngo',
     regexs: {
       total: /Importo\: EUR (\d+[\.\,]\d{2})/g,
     },
     // prettier-ignore
     template: '<b>#longName#</b> 🔌\n' +
-              '\n' +
-              'È stata emessa una fattura di #total#€',
+        '\n' +
+        'È stata emessa una fattura di #total#€',
+  },
+  'mimoto': {
+    longName: 'Mimoto',
+    regexs: {
+      total: /Importo\: EUR (\d+[\.\,]\d{2})/g,
+    },
+    // prettier-ignore
+    template: '<b>#longName#</b> 🛵\n' +
+        '\n' +
+        'È stata emessa una fattura di #total#€',
   },
   'drive-now': {
     longName: 'DriveNow',
@@ -43,8 +53,8 @@ const templates: Interfaces.strategyMap = {
     },
     // prettier-ignore
     template: '<b>#longName#</b>🏎\n' +
-              '\n' +
-              'Hai speso #total#€ con l\'auto targata <i>#plate#</i>',
+        '\n' +
+        'Hai speso #total#€ con l\'auto targata <i>#plate#</i>',
   },
 };
 (() =>
@@ -56,8 +66,8 @@ const templates: Interfaces.strategyMap = {
       },
       // prettier-ignore
       template: '<b>#longName#</b> 🚙\n' +
-                '\n' +
-                'È stata emessa una fattura di #total#€',
+            '\n' +
+            'È stata emessa una fattura di #total#€',
     };
   }))();
 const fillTemplate = (context: Interfaces.parsedData) => {

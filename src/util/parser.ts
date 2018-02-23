@@ -2,10 +2,16 @@ import {templates} from './templates';
 import {v4 as uuidV4} from 'uuid';
 /* eslint-disable no-unused-vars */
 import Email from '../classes/Email';
+
 /* eslint-enable no-unused-vars */
 
 function parse(email: Email) {
   let strategy = /@(.+)\..*/.exec(email.sender.value)[1];
+  if (strategy === 'cartasi' && /mimoto/i.test(email.body)) {
+    strategy = 'mimoto';
+  } else {
+    strategy = 'sharengo';
+  }
   let regexs;
   let parsedData: Interfaces.parsedData = {};
   for (let regex of Object.keys((regexs = (templates[strategy] || {regexs: null}).regexs || {}))) {

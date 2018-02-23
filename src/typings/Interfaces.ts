@@ -47,7 +47,7 @@ declare namespace Interfaces {
 
   interface mapEntry {
     longName: string;
-    emailDomain: string;
+    emailDomain?: string;
     regexs: {
       total: RegExp;
       plate?: RegExp;

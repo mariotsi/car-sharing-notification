@@ -7,10 +7,8 @@ import Email from '../classes/Email';
 
 function parse(email: Email) {
   let strategy = /@(.+)\..*/.exec(email.sender.value)[1];
-  if (strategy === 'cartasi' && /mimoto/i.test(email.body)) {
-    strategy = 'mimoto';
-  } else {
-    strategy = 'sharengo';
+  if (strategy === 'cartasi') {
+    strategy = /mimoto/i.test(email.body) ? 'mimoto' : 'sharengo';
   }
   let regexs;
   let parsedData: Interfaces.parsedData = {};

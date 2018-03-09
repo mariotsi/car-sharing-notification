@@ -27,7 +27,7 @@ const templates: Interfaces.strategyMap = {
   },
   'sharengo': {
     longName: 'Share\'ngo',
-    emailDomain: 'cartasi',
+    emailDomain: 'nexi',
     regexs: {
       total: /Importo\: EUR (\d+[\.\,]\d{2})/g,
     },
@@ -38,7 +38,7 @@ const templates: Interfaces.strategyMap = {
   },
   'mimoto': {
     longName: 'Mimoto',
-    emailDomain: 'cartasi',
+    emailDomain: 'nexi',
     regexs: {
       total: /Importo\: EUR (\d+[\.\,]\d{2})/g,
     },

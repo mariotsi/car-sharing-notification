@@ -64,7 +64,7 @@ const templates: Interfaces.strategyMap = {
     templates[element] = {
       longName: 'Car2Go',
       regexs: {
-        total: /EUR.+?(\d+,\d{2})|.+?(\d+,\d{2}) EUR|(\d+,\d{2}) EUR/g,
+        total: /EUR.+?(\d+,\d{2})|.+?(\d+,\d{2}) EUR|(\d+,\d{2}) EUR|Importo: (\d+,\d{2})/g,
       },
       // prettier-ignore
       template: '<b>#longName#</b> 🚙\n' +

@@ -23,7 +23,8 @@
     "request-promise": "^4.2.1",
     "telebot": "^1.2.3",
     "typescript": "^2.4.2",
-    "uuid": "^3.1.0"
+    "uuid": "^3.1.0",
+    "snyk": "^1.83.0"
   },
   "devDependencies": {
     "eslint": "^4.3.0",
@@ -40,7 +41,9 @@
     "compile": "tsc -p .",
     "prettier:ts": "prettier --single-quote --parser typescript --write src/*.ts src/**/*.ts",
     "prettier:json": "prettier --parser json --write *.json",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "lint-staged": {
     "*.ts": [
@@ -59,5 +62,6 @@
     "url": "https://github.com/mariotsi/car-sharing-notification.git"
   },
   "author": "Simone Mariotti",
-  "license": "ISC"
+  "license": "ISC",
+  "snyk": true
 }

@@ -4,11 +4,11 @@ const templates: Interfaces.strategyMap = {
   'enjoy.eni': {
     longName: 'Enjoy',
     regexs: {
-      total: /IMPORTO DA ADDEBITARE.+?(\d+\,\d{2})/g,
-      plate: /TARGA\:.*([A-Z0-9]{7})\</g,
-      type: /VEICOLO:.*>(.*)<\/font.*TARGA/g,
-      totalTime: /DURATA TOTALE:.*>(.*)<\/font.*CHILOMETRI/g,
-      distance: /CHILOMETRI PERCORSI\:.*?\>(\d+)</g,
+      total: /TOTALE NOLEGGIO [.\s\S]*?(\d+,\d{2})/g,
+      plate: /TARGA\:[.\S\s]*([A-Z0-9]{7})\</g,
+      type: /VEICOLO:[.\s\S]*>(.*)<\/font[\s.\S]*TARGA/g,
+      totalTime: /DURATA TOTALE:[\s.\S]*?(\d+ min)[\s.\S]*CHILOMETRI/g,
+      distance: /CHILOMETRI PERCORSI\:[.\s\S]*?(\d+) km/g,
     },
     // prettier-ignore
     template: '<b>#longName#</b> 🚗\n' +
@@ -50,7 +50,7 @@ const templates: Interfaces.strategyMap = {
   'drive-now': {
     longName: 'DriveNow',
     regexs: {
-      total: /(\d+\,\d{2})/g,
+      total: /(\d+,?\.?\d{0,2}) EUR/g,
       plate: /([A-Z]{2}\s\d{3}[A-Z]{2})/g,
     },
     // prettier-ignore
@@ -60,7 +60,7 @@ const templates: Interfaces.strategyMap = {
   },
 };
 (() =>
-  ['moovel', 'payment.car2go'].forEach((element) => {
+  ['moovel', 'payment.car2go', 'car2go'].forEach((element) => {
     templates[element] = {
       longName: 'Car2Go',
       regexs: {

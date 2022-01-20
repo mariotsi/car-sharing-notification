@@ -1,6 +1,6 @@
 import {Collection, MongoClient} from 'mongodb';
 
-let usersColl: Collection<Document>;
+let usersColl: Collection;
 // let messages;
 // Connection url
 const url = process.env.MONGODB_URI;

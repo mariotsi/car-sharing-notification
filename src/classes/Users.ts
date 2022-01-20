@@ -51,7 +51,7 @@ async function deactivate(telegramId: number) {
 
 async function handleStart(user: any) {
   const localUser = await getUser(user.telegramId);
-  if (localUser) {
+  if (localUser && !localUser.authInProgress) {
     // He is a recurring user
     localUser.active = true;
     updateUser(localUser);

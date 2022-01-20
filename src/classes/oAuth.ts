@@ -67,7 +67,7 @@ const getClient = (userId: any, tokens: any) => {
   if (clients.has(userId)) {
     clients.get(userId).setCredentials(tokens);
   } else {
-    const newClient = new OAuth2(
+    const newClient = new google.auth.OAuth2(
         process.env['OAUTH:clientId'],
         process.env['OAUTH:clientSecret'],
         process.env['OAUTH:redirectUrl']

@@ -28,7 +28,7 @@ http
       const query = querystring.parse('' + url.parse(req.url).query);
       if (pathName === '/oauth_cb') {
         res.writeHead(301, {
-          Location: `https://telegram.me/car_sharing_bot?start=${new Buffer('' + query.code).toString('base64')}`,
+          Location: `https://telegram.me/car_sharing_bot?start=${Buffer.from(''+query.code).toString('base64')}`,
         });
         res.end();
       /* request.get(`https://telegram.me/car_sharing_bot?start=${query.code}`,{},(e,a)=>{

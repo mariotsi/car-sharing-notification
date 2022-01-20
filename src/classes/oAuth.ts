@@ -4,17 +4,17 @@ import bot from './CSBot';
 import * as Users from './Users';
 import * as db from './db';
 const clients = new Map();
+const {google} = require('googleapis');
 
 const bitlyUrl = 'https://api-ssl.bitly.com/v3/shorten';
 
-const OAuth2 = require('googleapis').auth.OAuth2;
+const OAuth2 =  new google.auth.OAuth2;
 const oauth2Client = new OAuth2(
     process.env['OAUTH_clientId'],
     process.env['OAUTH_clientSecret'],
     process.env['OAUTH_redirectUrl']
 );
 
-oauth2Client.getTokenPromisified = nodeUtil.promisify(oauth2Client.getToken);
 
 // emails.listPromisified = nodeUtil.promisify(emails.list);
 
@@ -47,7 +47,7 @@ const getOAuthUrl = async (telegramId: number | string) => {
 
 const getAndSaveTokens = async (code: string, telegramId: number) => {
   try {
-    const tokens = await oauth2Client.getTokenPromisified(code);
+    const {tokens} = await oauth2Client.getToken(code);
     console.log(`User ${telegramId} correctly exchanged code for token`);
     const user = await Users.getUser(telegramId);
     user.authInProgress = false;

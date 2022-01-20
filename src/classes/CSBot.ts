@@ -48,7 +48,7 @@ class Bot {
           language: msg.from.language_code,
         });
       } else {
-        const code = new Buffer(splittedMessage[1], 'base64').toString();
+        const code =  Buffer.from(splittedMessage[1]).toString();
         console.log(`Received token ${code} for ${msg.from.id}`);
         const newUser = await oAuth.getAndSaveTokens(code, msg.from.id);
         !recurringUser && this.sendToMaster('New User: ' + JSON.stringify(newUser));

@@ -5,9 +5,9 @@ const localSavedIds = new Set();
 // Initialize Firebase
 admin.initializeApp({
   credential: admin.credential.cert({
-    projectId: process.env['FIREBASE:projectId'],
-    clientEmail: process.env['FIREBASE:clientEmail'],
-    privateKey: parseKey(process.env['FIREBASE:privateKey']),
+    project_id: process.env['FIREBASE:projectId'],
+    client_email: process.env['FIREBASE:clientEmail'],
+    private_key: parseKey(process.env['FIREBASE:privateKey']),
   }),
   databaseURL: process.env['FIREBASE:databaseURL'],
 });

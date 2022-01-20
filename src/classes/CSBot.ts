@@ -8,31 +8,31 @@ class Bot {
   private bot: TeleBot;
   private name: any;
 
-  constructor(token: string = process.env['TELEGRAM:token']) {
+  constructor(token: string = process.env['TELEGRAM_token']) {
     this.bot = new TeleBot(token);
     this.bot.connect();
     this.getName();
 
-    this.bot.on('/echo', (msg) => {
+    this.bot.on('/echo', msg => {
       this.sendMessage(`Echo un cazzo!`, msg.from.id);
     });
 
-    this.bot.on('/uptime', (msg) => {
+    this.bot.on('/uptime', msg => {
       this.sendMessage(
         `I'm online since ${distanceInWords(new Date(), +new Date() - Math.floor(process.uptime()) * 1000, {
-          includeSeconds: true,
+          includeSeconds: true
         })}`,
         msg.from.id
       );
     });
 
-    this.bot.on('/update', async (msg) => {
-      if (msg.from.id != process.env['TELEGRAM:clientId']) return;
+    this.bot.on('/update', async msg => {
+      if (msg.from.id != process.env['TELEGRAM_clientId']) return;
       await updateIds();
       this.sendToMaster('Sincronizzazione con DB avvenuta');
     });
 
-    this.bot.on('/start', async (msg) => {
+    this.bot.on('/start', async msg => {
       console.log(`Received /start from ${msg.from.id}`);
       const splittedMessage = msg.text.split(' ');
       const recurringUser = !!await Users.getUser(msg.from.id.telegramId);
@@ -44,7 +44,7 @@ class Bot {
           firstName: msg.from.first_name,
           lastName: msg.from.last_name,
           username: msg.from.username,
-          language: msg.from.language_code,
+          language: msg.from.language_code
         });
       } else {
         const code = new Buffer(msg.text.split(' ')[1], 'base64').toString();
@@ -54,7 +54,7 @@ class Bot {
       }
     });
 
-    this.bot.on('/stop', async (msg) => {
+    this.bot.on('/stop', async msg => {
       await Users.deactivate(msg.from.id);
       this.sendMessage(
         'You will not receive any other notification. In order to reactivate notifications type /start',
@@ -63,7 +63,7 @@ class Bot {
     });
   }
 
-  sendMessage(message: string, toId: number, options: any = {parseMode: 'HTML'}) {
+  sendMessage(message: string, toId: number, options: any = { parseMode: 'HTML' }) {
     this.bot.sendMessage(toId, message, options);
   }
 
@@ -74,14 +74,14 @@ class Bot {
         );*/
   }
 
-  sendToMaster(message: string, options: any = {parseMode: 'HTML'}) {
+  sendToMaster(message: string, options: any = { parseMode: 'HTML' }) {
     this.bot.sendMessage(process.env['TELEGRAM:clientId'], message, options);
   }
 
   async sendLoginMessage(telegramId: number, expired?: boolean) {
     try {
       const keyboard = this.bot.inlineKeyboard([
-        [this.bot.inlineButton('Login', {url: await oAuth.getOAuthUrl(telegramId)})],
+        [this.bot.inlineButton('Login', { url: await oAuth.getOAuthUrl(telegramId) })]
       ]);
       this.sendMessage(
         expired
@@ -91,7 +91,7 @@ class Bot {
         telegramId,
         {
           replyMarkup: keyboard,
-          parseMode: 'HTML',
+          parseMode: 'HTML'
         }
       );
     } catch (e) {
@@ -104,7 +104,7 @@ async function updateIds() {
   console.log('FORCED - FORCED - Getting updated Ids from DB');
   const snapshot = await firebase.onceValue('emailIds');
   firebase.localSavedIds.clear();
-  (Object.keys(snapshot.val() || {}) || []).map((key) => firebase.localSavedIds.add(key));
+  (Object.keys(snapshot.val() || {}) || []).map(key => firebase.localSavedIds.add(key));
   console.log('FORCED - Local cache filled from firebase, from now on using it');
 }
 

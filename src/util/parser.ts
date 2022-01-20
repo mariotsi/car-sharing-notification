@@ -1,5 +1,5 @@
-import {templates} from './templates';
-import {v4 as uuidV4} from 'uuid';
+import { templates } from './templates';
+import { v4 as uuidV4 } from 'uuid';
 /* eslint-disable no-unused-vars */
 import Email from '../classes/Email';
 
@@ -12,8 +12,9 @@ function parse(email: Email) {
   }
   let regexs;
   let parsedData: Interfaces.parsedData = {};
-  for (let regex of Object.keys((regexs = (templates[strategy] || {regexs: null}).regexs || {}))) {
+  for (let regex of Object.keys((regexs = (templates[strategy] || { regexs: null }).regexs || {}))) {
     let result;
+    // @ts-ignore
     while ((result = regexs[regex].exec(email.body || '')) != null) {
       result.shift();
       while (!result[0]) {
@@ -26,6 +27,7 @@ function parse(email: Email) {
         : result[0];
     }
     // resetting the Regex due to \g flag
+    // @ts-ignore
     regexs[regex].lastIndex = 0;
   }
   parsedData = Object.assign(parsedData, {
@@ -34,7 +36,7 @@ function parse(email: Email) {
     telegramId: email.telegramId,
     strategy: strategy,
     sender: email.sender.value,
-    date: email.date,
+    date: email.date
   });
   if (Object.keys(parsedData).length && parsedData.total) {
     parsedData.uuid = uuidV4();
@@ -49,7 +51,7 @@ function parse(email: Email) {
     parsedData = {
       error: 'No total found',
       rawData: email.body,
-      parsedData: JSON.stringify(parsedData),
+      parsedData: JSON.stringify(parsedData)
     };
   } else {
     console.log(
@@ -57,7 +59,7 @@ function parse(email: Email) {
     );
     parsedData = {
       error: 'No data found',
-      rawData: JSON.stringify(email.body),
+      rawData: JSON.stringify(email.body)
     };
   }
   email.parsedData = parsedData;

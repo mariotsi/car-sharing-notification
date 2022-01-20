@@ -9,8 +9,9 @@
     "outDir": "./out/",
     "sourceMap": true,
     "target": "ES6",
-    "lib": ["dom", "es2017"]
+    "lib": ["dom", "es2017"],
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["node_modules/*", "**/*.spec.ts"]
 }

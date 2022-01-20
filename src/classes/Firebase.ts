@@ -1,15 +1,16 @@
-import {parseKey} from '../util';
+import { parseKey } from '../util';
 import * as admin from 'firebase-admin';
 
 const localSavedIds = new Set();
 // Initialize Firebase
 admin.initializeApp({
   credential: admin.credential.cert({
-    project_id: process.env['FIREBASE:projectId'],
-    client_email: process.env['FIREBASE:clientEmail'],
-    private_key: parseKey(process.env['FIREBASE:privateKey']),
+    // @ts-ignore
+    project_id: process.env['FIREBASE_projectId'],
+    client_email: process.env['FIREBASE_clientEmail'],
+    private_key: parseKey(process.env['FIREBASE_privateKey'])
   }),
-  databaseURL: process.env['FIREBASE:databaseURL'],
+  databaseURL: process.env['FIREBASE_databaseURL']
 });
 const firebaseDb = admin.database();
 
@@ -26,4 +27,4 @@ function onceValue(where: string) {
 }
 
 export default firebaseDb;
-export {set, onceValue, localSavedIds};
+export { set, onceValue, localSavedIds };

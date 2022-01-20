@@ -1,3 +1,5 @@
+import {gmail_v1 as gmailTypes} from 'googleapis';
+
 class Resource {
   attachmentId: string;
   size: number;
@@ -27,7 +29,7 @@ export default class Email {
   raw: Buffer;
   parsedData: Interfaces.parsedData;
 
-  constructor(email: any, telegramId: number) {
+  constructor(email: gmailTypes.Schema$Message, telegramId: number) {
     Object.assign(this, email);
     this.telegramId = telegramId;
   }

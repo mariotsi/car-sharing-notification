@@ -1,14 +1,11 @@
 import {parseEmailBody, emailsToFilter, fillTemplate} from './util';
 import {isAfter} from 'date-fns';
-import * as nodeUtil from 'util';
 import * as firebase from './classes/Firebase';
 import * as db from './classes/db';
 import * as oAuth from './classes/oAuth';
 
-const google = require('googleapis');
+import {google, gmail_v1 as gmailTypes} from 'googleapis';
 const emails = google.gmail('v1').users.messages;
-emails.getPromisified = nodeUtil.promisify(emails.get);
-emails.listPromisified = nodeUtil.promisify(emails.list);
 import Email from './classes/Email.js';
 import bot from './classes/CSBot.js';
 
@@ -19,7 +16,7 @@ const isDev = process.env.dev === 'true';
 
 const checkNewEmails = async (user: any, client: any, pageToken?: string) => {
   try {
-    const response: Gmail.response = await emails.listPromisified({
+    const response = await emails.list({
       auth: client,
       userId: 'me',
       pageToken,
@@ -28,7 +25,7 @@ const checkNewEmails = async (user: any, client: any, pageToken?: string) => {
     });
     // Blocking requests on dev env
     if (isDev) {
-      response.nextPageToken = null;
+      response.data.nextPageToken = null;
     }
 
     // Using cache after first DB Synch in order to don't exaust the free tier of Firebase DB
@@ -38,7 +35,7 @@ const checkNewEmails = async (user: any, client: any, pageToken?: string) => {
       (Object.keys(snapshot.val() || {}) || []).map((key) => firebase.localSavedIds.add(key));
       console.log('Local cache filled from firebase, from now on using it');
     }
-    await filterNewMessages(client, user, response.messages || [], response.nextPageToken);
+    await filterNewMessages(client, user, response.data.messages || [], response.data.nextPageToken);
   } catch (e) {
     console.log('Error checking new email: ' + e.code ? e.code + ' ' + e.message : e);
     if (e.code === 401 || (e.code === 400 && e.message === 'invalid_request')) {
@@ -47,7 +44,12 @@ const checkNewEmails = async (user: any, client: any, pageToken?: string) => {
   }
 };
 
-async function filterNewMessages(client: any, user: any, messages: Gmail.email[], nextPageToken: string) {
+async function filterNewMessages(
+    client: any,
+    user: any,
+    messages: gmailTypes.Schema$Message[],
+    nextPageToken: string
+) {
   await Promise.all(
       messages.reduce((acc, {id}) => {
         if (!firebase.localSavedIds.has(id)) {
@@ -90,14 +92,12 @@ const getEmail = async (client: any, emailId: string, telegramId: number) => {
   console.log(`User ${telegramId} - Asking new email ${emailId} to Gmail`);
   firebase.set(`emailIds/${emailId}`, 'Processing...');
   try {
-    return new Email(
-        await emails.getPromisified({
-          auth: client,
-          userId: 'me',
-          id: emailId,
-        }),
-        telegramId
-    );
+    const {data} = await emails.get({
+      auth: client,
+      userId: 'me',
+      id: emailId,
+    });
+    return new Email(data, telegramId);
   } catch (err) {
     console.error('The API returned an error: ' + err);
     firebase.set(`emailIds/${emailId}`, {error: 'Error retrieving email from Gmail'});

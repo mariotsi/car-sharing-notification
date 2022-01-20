@@ -52,5 +52,5 @@ export async function addNotificationToUser(telegramId: number, message: string,
 }
 
 export async function updateUser(user: any) {
-  return usersColl.updateOne({telegramId: user.telegramId}, {$set:user}, {upsert: true});
+  return usersColl.updateOne({telegramId: user.telegramId}, {$set: user}, {upsert: true});
 }

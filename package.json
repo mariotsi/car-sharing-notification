@@ -43,7 +43,7 @@
     "prestart_local": "npm run compile",
     "prettier:ts": "prettier --single-quote --parser typescript --write src/*.ts src/**/*.ts",
     "prettier:json": "prettier --parser json --write *.json",
-    "precommit2": "lint-staged"
+    "precommit": "lint-staged"
   },
   "lint-staged": {
     "*.ts": [

@@ -10,6 +10,8 @@
   ],
   "rules":{
     "require-jsdoc":"off",
-    "max-len": [2, 120]
+    "max-len": [2, 120],
+    "@typescript-eslint/ban-ts-comment": 0,
+    "no-useless-escape": 0
 }
 }

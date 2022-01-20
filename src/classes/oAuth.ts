@@ -1,10 +1,9 @@
-import * as nodeUtil from 'util';
 import * as rp from 'request-promise';
 import bot from './CSBot';
 import * as Users from './Users';
 import * as db from './db';
 const clients = new Map();
-const {google} = require('googleapis');
+import {google} from 'googleapis';
 
 const bitlyUrl = 'https://api-ssl.bitly.com/v3/shorten';
 
@@ -13,7 +12,6 @@ const oauth2Client = new google.auth.OAuth2(
     process.env['OAUTH_clientSecret'],
     process.env['OAUTH_redirectUrl']
 );
-
 
 // emails.listPromisified = nodeUtil.promisify(emails.list);
 
@@ -24,7 +22,7 @@ const getOAuthUrl = async (telegramId: number | string) => {
     // If you only need one scope you can pass it as a string
     scope: ['https://www.googleapis.com/auth/gmail.readonly'],
     // Optional property that passes state parameters to redirect URI
-    state: {telegramId},
+    state: '' + telegramId,
   });
   try {
     const res = await rp({

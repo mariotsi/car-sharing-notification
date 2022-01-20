@@ -35,7 +35,7 @@ class Bot {
     this.bot.on('/start', async (msg) => {
       console.log(`Received /start from ${msg.from.id}`);
       const splittedMessage = msg.text.split(' ');
-      console.log('mmm',splittedMessage)
+      console.log('mmm', splittedMessage);
       const recurringUser = !!await Users.getUser(msg.from.id.telegramId);
       if (splittedMessage.length === 1) {
         console.log(`No token with the start command`);
@@ -48,7 +48,7 @@ class Bot {
           language: msg.from.language_code,
         });
       } else {
-        const code =  Buffer.from(splittedMessage[1]).toString();
+        const code = Buffer.from(splittedMessage[1]).toString();
         console.log(`Received token ${code} for ${msg.from.id}`);
         const newUser = await oAuth.getAndSaveTokens(code, msg.from.id);
         !recurringUser && this.sendToMaster('New User: ' + JSON.stringify(newUser));

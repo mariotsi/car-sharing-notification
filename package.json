@@ -38,12 +38,11 @@
     "start": "node out/index.js",
     "start_local": "node -r dotenv/config out/index.js",
     "lint": "eslint --fix --ext .ts --ext .js src",
-    "compile": "tsc -p .",
     "prestart": "npm run compile",
     "prestart_local": "npm run compile",
     "prettier:ts": "prettier --single-quote --parser typescript --write src/*.ts src/**/*.ts",
     "prettier:json": "prettier --parser json --write *.json",
-    "precommit": "lint-staged"
+    "precommit2": "lint-staged"
   },
   "lint-staged": {
     "*.ts": [

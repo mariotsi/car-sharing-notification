@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": false,
     "removeComments": true,
     "preserveConstEnums": true,

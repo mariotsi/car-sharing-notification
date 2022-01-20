@@ -9,9 +9,9 @@ const bitlyUrl = 'https://api-ssl.bitly.com/v3/shorten';
 
 const OAuth2 = require('googleapis').auth.OAuth2;
 const oauth2Client = new OAuth2(
-  process.env['OAUTH_clientId'],
-  process.env['OAUTH_clientSecret'],
-  process.env['OAUTH_redirectUrl']
+    process.env['OAUTH_clientId'],
+    process.env['OAUTH_clientSecret'],
+    process.env['OAUTH_redirectUrl']
 );
 
 oauth2Client.getTokenPromisified = nodeUtil.promisify(oauth2Client.getToken);
@@ -25,16 +25,16 @@ const getOAuthUrl = async (telegramId: number | string) => {
     // If you only need one scope you can pass it as a string
     scope: ['https://www.googleapis.com/auth/gmail.readonly'],
     // Optional property that passes state parameters to redirect URI
-    state: { telegramId }
+    state: {telegramId},
   });
   try {
     const res = await rp({
       uri: bitlyUrl,
       qs: {
         access_token: process.env['BIT.LY_token'],
-        longUrl
+        longUrl,
       },
-      json: true
+      json: true,
     });
     if (res.status_code < 300) {
       return res.data.url;
@@ -69,9 +69,9 @@ const getClient = (userId: any, tokens: any) => {
     clients.get(userId).setCredentials(tokens);
   } else {
     const newClient = new OAuth2(
-      process.env['OAUTH:clientId'],
-      process.env['OAUTH:clientSecret'],
-      process.env['OAUTH:redirectUrl']
+        process.env['OAUTH:clientId'],
+        process.env['OAUTH:clientSecret'],
+        process.env['OAUTH:redirectUrl']
     );
     newClient.setCredentials(tokens);
     clients.set(userId, newClient);
@@ -94,4 +94,4 @@ async function authenticateUser(user: any, expired?: boolean) {
   await db.updateUser(user);
 }
 
-export { getOAuthUrl, getAndSaveTokens, getClient, authenticateUser };
+export {getOAuthUrl, getAndSaveTokens, getClient, authenticateUser};

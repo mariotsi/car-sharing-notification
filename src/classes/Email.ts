@@ -36,7 +36,7 @@ export default class Email {
     let bodyData = this.payload.body.data;
     if (!bodyData) {
       bodyData = ((this.payload.parts.find(
-        (item) => item.mimeType === 'text/plain' || item.mimeType === 'text/html'
+          (item) => item.mimeType === 'text/plain' || item.mimeType === 'text/html'
       ) || {}).body || {}).data;
     }
     return bodyData;

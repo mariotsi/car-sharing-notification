@@ -84,7 +84,7 @@ const fillTemplate = (context: Interfaces.parsedData) => {
     // Enjoy Piaggio MP3
     template = templates[context.strategy].templateScooter;
   }
-  for (let key of Object.keys(context)) {
+  for (const key of Object.keys(context)) {
     template = template.replace(`#${key}#`, context[key]);
   }
   return template;

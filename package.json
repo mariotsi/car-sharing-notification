@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "engines": {
-    "node": "8.x",
-    "npm": "5.x"
+    "node": "12.x"
   },
   "dependencies": {
     "@types/node": "^8.0.17",
@@ -21,18 +20,19 @@
     "request": "^2.84.0",
     "request-promise": "^4.2.1",
     "telebot": "^1.2.3",
-    "typescript": "^4.5.4",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/parser": "^5.10.0",
     "dotenv": "^14.2.0",
-    "eslint": "^4.3.0",
-    "eslint-config-google": "^0.9.1",
-    "eslint-config-prettier": "^2.3.0",
+    "eslint": "^8.7.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^8.3.0",
     "husky": "^0.14.3",
     "lint-staged": "^4.0.2",
     "prettier": "^1.5.3",
-    "typescript-eslint-parser": "^22.0.0"
+    "typescript": "^4.5.4"
   },
   "scripts": {
     "start": "node out/index.js",

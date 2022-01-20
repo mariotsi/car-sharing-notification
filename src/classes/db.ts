@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import {MongoClient} from 'mongodb';
 
 let usersColl: any;
 // let messages;
@@ -25,7 +25,7 @@ export async function getUsers(telegramId?: number | boolean) {
   try {
     const query: any = {};
     // if telegramId is boolean and true retrieve all user, also inactive
-    if (typeof telegramId === 'boolean' && telegramId) query.active = { $ne: false };
+    if (typeof telegramId === 'boolean' && telegramId) query.active = {$ne: false};
     if (typeof telegramId === 'number') {
       query.telegramId = telegramId;
     }
@@ -42,9 +42,9 @@ export async function getAllUsers() {
 export async function addNotificationToUser(telegramId: number, message: string, data: Interfaces.parsedData) {
   try {
     // Check if we already saved that notification (should happen only in dev mode)
-    const alreadySaved = !!await usersColl.findOne({ telegramId, 'notifications.id': data.id });
+    const alreadySaved = !!await usersColl.findOne({telegramId, 'notifications.id': data.id});
     if (!alreadySaved) {
-      usersColl.updateOne({ telegramId }, { $push: { notifications: { id: data.id, message, data } } });
+      usersColl.updateOne({telegramId}, {$push: {notifications: {id: data.id, message, data}}});
     }
   } catch (e) {
     console.log('Cannot add notification to user', telegramId, message);
@@ -52,5 +52,5 @@ export async function addNotificationToUser(telegramId: number, message: string,
 }
 
 export async function updateUser(user: any) {
-  return usersColl.updateOne({ telegramId: user.telegramId }, user, { upsert: true });
+  return usersColl.updateOne({telegramId: user.telegramId}, user, {upsert: true});
 }

@@ -49,14 +49,14 @@ const checkNewEmails = async (user: any, client: any, pageToken?: string) => {
 
 async function filterNewMessages(client: any, user: any, messages: Gmail.email[], nextPageToken: string) {
   await Promise.all(
-    messages.reduce((acc, {id}) => {
-      if (!firebase.localSavedIds.has(id)) {
+      messages.reduce((acc, {id}) => {
+        if (!firebase.localSavedIds.has(id)) {
         // console.log('new message', message);
-        firebase.localSavedIds.add(id);
-        acc.push(handleNewMessage(client, id, user));
-      }
-      return acc;
-    }, [])
+          firebase.localSavedIds.add(id);
+          acc.push(handleNewMessage(client, id, user));
+        }
+        return acc;
+      }, [])
   );
   !!nextPageToken && checkNewEmails(user, client, nextPageToken);
 }
@@ -91,12 +91,12 @@ const getEmail = async (client: any, emailId: string, telegramId: number) => {
   firebase.set(`emailIds/${emailId}`, 'Processing...');
   try {
     return new Email(
-      await emails.getPromisified({
-        auth: client,
-        userId: 'me',
-        id: emailId,
-      }),
-      telegramId
+        await emails.getPromisified({
+          auth: client,
+          userId: 'me',
+          id: emailId,
+        }),
+        telegramId
     );
   } catch (err) {
     console.error('The API returned an error: ' + err);

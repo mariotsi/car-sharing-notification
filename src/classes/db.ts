@@ -1,6 +1,6 @@
-import {MongoClient} from 'mongodb';
+import {Collection, MongoClient} from 'mongodb';
 
-let usersColl: any;
+let usersColl: Collection<Document>;
 // let messages;
 // Connection url
 const url = process.env.MONGODB_URI;
@@ -52,5 +52,5 @@ export async function addNotificationToUser(telegramId: number, message: string,
 }
 
 export async function updateUser(user: any) {
-  return usersColl.updateOne({telegramId: user.telegramId}, user, {upsert: true});
+  return usersColl.updateOne({telegramId: user.telegramId}, {$set:user}, {upsert: true});
 }

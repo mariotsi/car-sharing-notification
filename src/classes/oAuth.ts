@@ -8,8 +8,7 @@ const {google} = require('googleapis');
 
 const bitlyUrl = 'https://api-ssl.bitly.com/v3/shorten';
 
-const OAuth2 =  new google.auth.OAuth2;
-const oauth2Client = new OAuth2(
+const oauth2Client = new google.auth.OAuth2(
     process.env['OAUTH_clientId'],
     process.env['OAUTH_clientSecret'],
     process.env['OAUTH_redirectUrl']

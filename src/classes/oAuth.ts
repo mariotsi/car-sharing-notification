@@ -31,7 +31,7 @@ const getOAuthUrl = async (telegramId: number | string) => {
     const res = await rp({
       uri: bitlyUrl,
       qs: {
-        access_token: process.env['BIT.LY_token'],
+        access_token: process.env['BIT_LY_token'],
         longUrl,
       },
       json: true,

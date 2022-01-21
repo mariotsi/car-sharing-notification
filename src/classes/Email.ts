@@ -1,4 +1,5 @@
 import {gmail_v1 as gmailTypes} from 'googleapis';
+import {ParsedData} from '../typings/Interfaces';
 
 class Resource {
   attachmentId: string;
@@ -27,7 +28,7 @@ export default class Email {
   };
   sizeEstimate: number;
   raw: Buffer;
-  parsedData: Interfaces.parsedData;
+  parsedData: ParsedData;
 
   constructor(email: gmailTypes.Schema$Message, telegramId: number) {
     Object.assign(this, email);

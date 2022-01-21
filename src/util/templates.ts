@@ -1,6 +1,6 @@
-// / <reference path="typings/Interfaces.ts" />
+import {ParsedData, StrategyMap} from '../typings/Interfaces';
 
-const templates: Interfaces.strategyMap = {
+const templates: StrategyMap = {
   'enjoy.eni': {
     longName: 'Enjoy',
     regexs: {
@@ -72,7 +72,7 @@ const templates: Interfaces.strategyMap = {
             'È stata emessa una fattura di #total#€',
     };
   }))();
-const fillTemplate = (context: Interfaces.parsedData) => {
+const fillTemplate = (context: ParsedData) => {
   if (!context) {
     return 'Errore nel parseTemplate -> context null';
   }

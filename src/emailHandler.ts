@@ -8,6 +8,7 @@ import {google, gmail_v1 as gmailTypes} from 'googleapis';
 const emails = google.gmail('v1').users.messages;
 import Email from './classes/Email.js';
 import bot from './classes/CSBot.js';
+import {ParsedData} from './typings/Interfaces';
 
 // const Cron = require('node-cron');
 const isDev = process.env.dev === 'true';
@@ -80,7 +81,7 @@ async function handleNewMessage(client: any, messageId: string, user: any) {
   }
 }
 
-const sendNotification = (parsedData: Interfaces.parsedData, to: number) => {
+const sendNotification = (parsedData: ParsedData, to: number) => {
   const message = fillTemplate(parsedData);
   parsedData.sent = new Date().toISOString();
   bot.sendMessage(message, to);

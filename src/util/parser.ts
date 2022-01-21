@@ -2,6 +2,7 @@ import {templates} from './templates';
 import {v4 as uuidV4} from 'uuid';
 /* eslint-disable no-unused-vars */
 import Email from '../classes/Email';
+import {ParsedData} from '../typings/Interfaces';
 
 /* eslint-enable no-unused-vars */
 
@@ -11,7 +12,7 @@ function parse(email: Email) {
     strategy = /mimoto/i.test(email.body) ? 'mimoto' : 'sharengo';
   }
   let regexs;
-  let parsedData: Interfaces.parsedData = {};
+  let parsedData: ParsedData = {};
   for (const regex of Object.keys((regexs = (templates[strategy] || {regexs: null}).regexs || {}))) {
     let result;
     // @ts-ignore

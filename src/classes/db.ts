@@ -1,4 +1,5 @@
 import {Collection, MongoClient} from 'mongodb';
+import {ParsedData} from '../typings/Interfaces';
 
 let usersColl: Collection;
 // let messages;
@@ -39,7 +40,7 @@ export async function getAllUsers() {
   return getUsers(true);
 }
 
-export async function addNotificationToUser(telegramId: number, message: string, data: Interfaces.parsedData) {
+export async function addNotificationToUser(telegramId: number, message: string, data: ParsedData) {
   try {
     // Check if we already saved that notification (should happen only in dev mode)
     const alreadySaved = !!await usersColl.findOne({telegramId, 'notifications.id': data.id});

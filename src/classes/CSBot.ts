@@ -4,6 +4,7 @@ import * as oAuth from './oAuth';
 import * as firebase from './Firebase';
 import * as Users from './Users';
 import base64url from 'base64url';
+import codesHolder from '../util/codesHolder';
 
 class Bot {
   private bot: TeleBot;
@@ -49,8 +50,15 @@ class Bot {
           language: msg.from.language_code,
         });
       } else {
-        const code = base64url.decode(splittedMessage[1]);
-        console.log(`Received token ${code} for ${msg.from.id}`);
+        const key = splittedMessage[1];
+        const [telegramId, encodedCode] = codesHolder.get(key).split('|');
+        codesHolder.delete(key);
+        const code = base64url.decode(encodedCode);
+        console.log(`Received token ${code} owned from ${telegramId} and used by user ${msg.from.id}`);
+        if ('' + telegramId !== '' + msg.from.id) {
+          console.error(`${msg.from.id} was trying to use a code owned by ${telegramId}`);
+          return;
+        }
         const newUser = await oAuth.getAndSaveTokens(code, msg.from.id);
         !recurringUser && this.sendToMaster('New User: ' + JSON.stringify(newUser));
       }

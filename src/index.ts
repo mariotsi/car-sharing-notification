@@ -6,6 +6,8 @@ import * as url from 'url';
 // import {parseKey} from './util';
 import * as querystring from 'querystring';
 import startUp from './polling';
+import codesHolder from './util/codesHolder';
+import {v4 as uuidV4} from 'uuid';
 /*
 const GoogleAuth = require('google-auth-library');
 
@@ -28,7 +30,10 @@ http
       const query = querystring.parse('' + url.parse(req.url).query);
       if (pathName === '/oauth_cb') {
       // https://core.telegram.org/bots#deep-linking
-        const redirectionTarget = `https://telegram.me/car_sharing_bot?start=${base64url.encode(query.code)}`;
+        const key = uuidV4();
+        const telegramId = query.state;
+        codesHolder.set(key, telegramId + '|' + base64url.encode(query.code));
+        const redirectionTarget = `https://telegram.me/car_sharing_bot?start=${key}`;
         res.writeHead(302, {
           Location: redirectionTarget,
         });

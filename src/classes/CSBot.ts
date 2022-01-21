@@ -3,6 +3,7 @@ import * as distanceInWords from 'date-fns/distance_in_words';
 import * as oAuth from './oAuth';
 import * as firebase from './Firebase';
 import * as Users from './Users';
+import base64url from 'base64url';
 
 class Bot {
   private bot: TeleBot;
@@ -48,7 +49,7 @@ class Bot {
           language: msg.from.language_code,
         });
       } else {
-        const code = Buffer.from(splittedMessage[1]).toString();
+        const code = base64url.decode(splittedMessage[1]);
         console.log(`Received token ${code} for ${msg.from.id}`);
         const newUser = await oAuth.getAndSaveTokens(code, msg.from.id);
         !recurringUser && this.sendToMaster('New User: ' + JSON.stringify(newUser));

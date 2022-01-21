@@ -1,6 +1,6 @@
 // / <reference path="typings/Interfaces.ts" />
 'use strict';
-
+import base64url from 'base64url';
 import * as http from 'http';
 import * as url from 'url';
 // import {parseKey} from './util';
@@ -27,7 +27,8 @@ http
       const pathName = url.parse(req.url).pathname;
       const query = querystring.parse('' + url.parse(req.url).query);
       if (pathName === '/oauth_cb') {
-        const redirectionTarget = `https://telegram.me/car_sharing_bot?start=${Buffer.from('' + query.code)}`;
+      // https://core.telegram.org/bots#deep-linking
+        const redirectionTarget = `https://telegram.me/car_sharing_bot?start=${base64url.encode(query.code)}`;
         res.writeHead(302, {
           Location: redirectionTarget,
         });

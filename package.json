@@ -11,6 +11,7 @@
     "@types/request-promise": "^4.1.36",
     "@types/telebot": "^1.2",
     "@types/uuid": "^3.4.1",
+    "base64url": "^3.0.1",
     "date-fns": "1.x",
     "firebase-admin": "^10.0.1",
     "google-auth-library": "^0.10.0",

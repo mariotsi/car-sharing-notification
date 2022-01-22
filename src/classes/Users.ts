@@ -12,7 +12,7 @@ async function loadUsers() {
     tokens2: {
       access_token: '',
       token_type: 'Bearer',
-      expiry_date: 1502025966777,
+      expiry_date: 1502025966777,  
     },
   });*/
 }
@@ -46,7 +46,7 @@ async function updateUser(user: any, updateInfo?: any) {
 }
 
 async function deactivate(telegramId: number) {
-  await updateUser(telegramId, {active: false});
+  await updateUser(telegramId, { active: false });
 }
 
 async function handleStart(user: any) {
@@ -61,4 +61,4 @@ async function handleStart(user: any) {
   await oAuth.authenticateUser(user);
 }
 
-export {loadUsers, users as list, getUser, updateUser, deactivate, handleStart};
+export { loadUsers, users as list, getUser, updateUser, deactivate, handleStart };

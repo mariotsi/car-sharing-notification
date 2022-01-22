@@ -1,5 +1,5 @@
-import {gmail_v1 as gmailTypes} from 'googleapis';
-import {ParsedData} from '../typings/Interfaces';
+import { gmail_v1 as gmailTypes } from 'googleapis';
+import { ParsedData } from '../typings/Interfaces';
 
 class Resource {
   attachmentId: string;
@@ -38,15 +38,16 @@ export default class Email {
   get bodyData() {
     let bodyData = this.payload.body.data;
     if (!bodyData) {
-      bodyData = ((this.payload.parts.find(
-          (item) => item.mimeType === 'text/plain' || item.mimeType === 'text/html'
-      ) || {}).body || {}).data;
+      bodyData = (
+        (this.payload.parts.find((item) => item.mimeType === 'text/plain' || item.mimeType === 'text/html') || {})
+          .body || {}
+      ).data;
     }
     return bodyData;
   }
 
   get sender() {
-    return this.payload.headers.find((item) => item.name === 'From');
+    return this.payload.headers.find((item) => item.name === 'from');
   }
 
   get date() {

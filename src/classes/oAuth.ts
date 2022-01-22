@@ -3,14 +3,14 @@ import bot from './CSBot';
 import * as Users from './Users';
 import * as db from './db';
 const clients = new Map();
-import {google} from 'googleapis';
+import { google } from 'googleapis';
 
 const bitlyUrl = 'https://api-ssl.bitly.com/v3/shorten';
 
 const oauth2Client = new google.auth.OAuth2(
-    process.env['OAUTH_clientId'],
-    process.env['OAUTH_clientSecret'],
-    process.env['OAUTH_redirectUrl']
+  process.env['OAUTH_clientId'],
+  process.env['OAUTH_clientSecret'],
+  process.env['OAUTH_redirectUrl']
 );
 
 // emails.listPromisified = nodeUtil.promisify(emails.list);
@@ -44,7 +44,7 @@ const getOAuthUrl = async (telegramId: number | string) => {
 
 const getAndSaveTokens = async (code: string, telegramId: number) => {
   try {
-    const {tokens} = await oauth2Client.getToken(code);
+    const { tokens } = await oauth2Client.getToken(code);
     console.log(`User ${telegramId} correctly exchanged code for token`);
     const user = await Users.getUser(telegramId);
     user.authInProgress = false;
@@ -63,14 +63,14 @@ const getAndSaveTokens = async (code: string, telegramId: number) => {
 
 const getClient = (userId: any, tokens: any) => {
   if (clients.has(userId)) {
-    clients.get(userId).setCredentials(tokens);
+    clients.get(userId).setCredentials({ ...tokens, forceRefreshOnFailure: true });
   } else {
     const newClient = new google.auth.OAuth2(
-        process.env['OAUTH:clientId'],
-        process.env['OAUTH:clientSecret'],
-        process.env['OAUTH:redirectUrl']
+      process.env['OAUTH_clientId'],
+      process.env['OAUTH_clientSecret'],
+      process.env['OAUTH_redirectUrl']
     );
-    newClient.setCredentials(tokens);
+    newClient.setCredentials({ ...tokens, forceRefreshOnFailure: true });
     clients.set(userId, newClient);
   }
   return clients.get(userId);
@@ -91,4 +91,4 @@ async function authenticateUser(user: any, expired?: boolean) {
   await db.updateUser(user);
 }
 
-export {getOAuthUrl, getAndSaveTokens, getClient, authenticateUser};
+export { getOAuthUrl, getAndSaveTokens, getClient, authenticateUser };

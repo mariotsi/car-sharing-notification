@@ -1,17 +1,23 @@
 {
   "extends": ["google", "eslint:recommended",
-    "plugin:@typescript-eslint/recommended"],
+    "plugin:@typescript-eslint/recommended","prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
+    "ecmaVersion": 2022,
     "sourceType": "module"
   },
   "plugins": [
     "@typescript-eslint",
+    "prettier"
+    
   ],
   "rules":{
+    "prettier/prettier": "error",
     "require-jsdoc":"off",
     "max-len": [2, 120],
     "@typescript-eslint/ban-ts-comment": 0,
-    "no-useless-escape": 0
+    "no-useless-escape": 0,
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/consistent-type-definitions": ["error", "type"],
 }
 }

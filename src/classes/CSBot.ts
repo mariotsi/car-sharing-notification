@@ -21,10 +21,10 @@ class Bot {
 
     this.bot.on('/uptime', (msg) => {
       this.sendMessage(
-          `I'm online since ${distanceInWords(new Date(), +new Date() - Math.floor(process.uptime()) * 1000, {
-            includeSeconds: true,
-          })}`,
-          msg.from.id
+        `I'm online since ${distanceInWords(new Date(), +new Date() - Math.floor(process.uptime()) * 1000, {
+          includeSeconds: true,
+        })}`,
+        msg.from.id
       );
     });
 
@@ -38,7 +38,7 @@ class Bot {
       console.log(`Received /start from ${msg.from.id}`);
       const splittedMessage = msg.text.split(' ');
       console.log('mmm', splittedMessage);
-      const recurringUser = !!await Users.getUser(msg.from.id.telegramId);
+      const recurringUser = !!(await Users.getUser(msg.from.id.telegramId));
       if (splittedMessage.length === 1) {
         console.log(`No token with the start command`);
         // first time connecting, still not authenticated or reactivating old user
@@ -59,6 +59,7 @@ class Bot {
           console.error(`${msg.from.id} was trying to use a code owned by ${telegramId}`);
           return;
         }
+
         const newUser = await oAuth.getAndSaveTokens(code, msg.from.id);
         !recurringUser && this.sendToMaster('New User: ' + JSON.stringify(newUser));
       }
@@ -67,13 +68,13 @@ class Bot {
     this.bot.on('/stop', async (msg) => {
       await Users.deactivate(msg.from.id);
       this.sendMessage(
-          'You will not receive any other notification. In order to reactivate notifications type /start',
-          msg.from.id
+        'You will not receive any other notification. In order to reactivate notifications type /start',
+        msg.from.id
       );
     });
   }
 
-  sendMessage(message: string, toId: number, options: any = {parseMode: 'HTML'}) {
+  sendMessage(message: string, toId: number, options: any = { parseMode: 'HTML' }) {
     this.bot.sendMessage(toId, message, options);
   }
 
@@ -84,20 +85,20 @@ class Bot {
         );*/
   }
 
-  sendToMaster(message: string, options: any = {parseMode: 'HTML'}) {
+  sendToMaster(message: string, options: any = { parseMode: 'HTML' }) {
     this.bot.sendMessage(process.env['TELEGRAM:clientId'], message, options);
   }
 
   async sendLoginMessage(telegramId: number, expired?: boolean) {
     try {
       const keyboard = this.bot.inlineKeyboard([
-        [this.bot.inlineButton('Login', {url: await oAuth.getOAuthUrl(telegramId)})],
+        [this.bot.inlineButton('Login', { url: await oAuth.getOAuthUrl(telegramId) })],
       ]);
       this.sendMessage(
-        expired ?
-          'You authentication with Google is no longer valid.\n\n' +
-            'In order to continue using this service please re-authenticate yourself' :
-          'You need to authenticate with Google in order to let the bot read CarSharing emails',
+        expired
+          ? 'You authentication with Google is no longer valid.\n\n' +
+              'In order to continue using this service please re-authenticate yourself'
+          : 'You need to authenticate with Google in order to let the bot read CarSharing emails',
         telegramId,
         {
           replyMarkup: keyboard,

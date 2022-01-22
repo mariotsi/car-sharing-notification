@@ -1,10 +1,10 @@
-import {ParsedData, StrategyMap} from '../typings/Interfaces';
+import { ParsedData, StrategyMap } from '../typings/Interfaces';
 
 const templates: StrategyMap = {
-  'enjoy.eni': {
+  'enjoy_at_enjoy_eni_com_r48caepq4853yg_kb5d0266@icloud.com': {
     longName: 'Enjoy',
     regexs: {
-      total: /TOTALE NOLEGGIO [.\s\S]*?(\d+,\d{2})/g,
+      total: /DURATA TOTALE:[.\s\S]*TOTALE[.\s\S]*?(\d+,\d{2})/g,
       plate: /TARGA\:[.\S\s]*([A-Z0-9]{7})\</g,
       type: /VEICOLO:[.\s\S]*>(.*)<\/font[\s.\S]*TARGA/g,
       totalTime: /DURATA TOTALE:[\s.\S]*?(\d+ min)[\s.\S]*CHILOMETRI/g,
@@ -25,8 +25,8 @@ const templates: StrategyMap = {
         'Durata: #totalTime#\n' +
         'Distanza: #distance# km\n',
   },
-  'sharengo': {
-    longName: 'Share\'ngo',
+  sharengo: {
+    longName: "Share'ngo",
     emailDomain: 'nexi',
     regexs: {
       total: /Importo\: EUR (\d+[\.\,]\d{2})/g,
@@ -36,7 +36,7 @@ const templates: StrategyMap = {
         '\n' +
         'È stata emessa una fattura di #total#€',
   },
-  'mimoto': {
+  mimoto: {
     longName: 'Mimoto',
     emailDomain: 'nexi',
     regexs: {
@@ -90,4 +90,4 @@ const fillTemplate = (context: ParsedData) => {
   return template;
 };
 const emailsToFilter = Array.from(new Set(Object.keys(templates).map((key) => templates[key].emailDomain || key)));
-export {templates, fillTemplate, emailsToFilter};
+export { templates, fillTemplate, emailsToFilter };

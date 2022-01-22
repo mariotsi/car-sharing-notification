@@ -31,9 +31,10 @@
     "eslint": "^8.7.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "husky": "^0.14.3",
     "lint-staged": "^4.0.2",
-    "prettier": "^1.5.3"
+    "prettier": "^2.5.1"
   },
   "scripts": {
     "start": "node out/index.js",
@@ -42,13 +43,11 @@
     "compile": "tsc",
     "prestart": "npm run compile",
     "prestart_local": "npm run compile",
-    "prettier:ts": "prettier --single-quote --parser typescript --write src/*.ts src/**/*.ts",
-    "prettier:json": "prettier --parser json --write *.json",
     "precommit": "lint-staged"
   },
   "lint-staged": {
     "*.ts": [
-      "prettier --single-quote --print-width 117 --parser typescript --write",
+      "prettier --write",
       "npm run lint",
       "git add"
     ],

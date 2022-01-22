@@ -1,4 +1,4 @@
-export interface ParsedData {
+export type ParsedData = {
   longName?: string;
   id?: string;
   strategy?: string;
@@ -12,9 +12,9 @@ export interface ParsedData {
   uuid?: string;
   sent?: string;
   [name: string]: string;
-}
+};
 
-export interface MapEntry {
+export type MapEntry = {
   longName: string;
   emailDomain?: string;
   regexs: {
@@ -26,8 +26,8 @@ export interface MapEntry {
   };
   template: string;
   templateScooter?: string;
-}
+};
 
-export interface StrategyMap {
+export type StrategyMap = {
   [name: string]: MapEntry;
-}
+};

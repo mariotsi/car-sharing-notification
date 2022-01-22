@@ -1,4 +1,4 @@
-import {parseKey} from '../util';
+import { parseKey } from '../util';
 import * as admin from 'firebase-admin';
 
 const localSavedIds = new Set();
@@ -27,4 +27,4 @@ function onceValue(where: string) {
 }
 
 export default firebaseDb;
-export {set, onceValue, localSavedIds};
+export { set, onceValue, localSavedIds };

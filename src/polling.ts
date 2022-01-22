@@ -22,11 +22,12 @@ function chronTask() {
 }
 
 function startChronTask() {
-  setInterval(chronTask, 5000);
+  setInterval(chronTask, 30000);
 }
 
 async function startUp() {
   await Users.loadUsers();
+  chronTask();
   startChronTask();
 }
 

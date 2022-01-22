@@ -7,7 +7,7 @@ import * as url from 'url';
 import * as querystring from 'querystring';
 import startUp from './polling';
 import codesHolder from './util/codesHolder';
-import {v4 as uuidV4} from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 /*
 const GoogleAuth = require('google-auth-library');
 
@@ -25,33 +25,33 @@ const jwtClient = new auth.JWTClient(
 );
 */
 http
-    .createServer(async function(req, res) {
-      const pathName = url.parse(req.url).pathname;
-      const query = querystring.parse('' + url.parse(req.url).query);
-      if (pathName === '/oauth_cb') {
+  .createServer(async function (req, res) {
+    const pathName = url.parse(req.url).pathname;
+    const query = querystring.parse('' + url.parse(req.url).query);
+    if (pathName === '/oauth_cb') {
       // https://core.telegram.org/bots#deep-linking
-        const key = uuidV4();
-        const telegramId = query.state;
-        codesHolder.set(key, telegramId + '|' + base64url.encode(query.code));
-        const redirectionTarget = `https://telegram.me/car_sharing_bot?start=${key}`;
-        res.writeHead(302, {
-          Location: redirectionTarget,
-        });
-        console.log(redirectionTarget);
-        res.end();
+      const key = uuidV4();
+      const telegramId = query.state;
+      codesHolder.set(key, telegramId + '|' + base64url.encode(query.code));
+      const redirectionTarget = `https://telegram.me/car_sharing_bot?start=${key}`;
+      res.writeHead(302, {
+        Location: redirectionTarget,
+      });
+      console.log(redirectionTarget);
+      res.end();
       /* request.get(`https://telegram.me/car_sharing_bot?start=${query.code}`,{},(e,a)=>{
               console.log(a);
               res.end(`Server is up on ${req.headers.host} ${JSON.stringify(query)}`)
 
             }
             );*/
-      }
-      res.writeHead(200, {'Content-Type': 'text/plain'});
-      res.end('Server is up');
-    })
-    .listen(process.env.PORT || 5000, () => {
-      console.log('Server listening on port: ', process.env.PORT || 5000);
-    });
+    }
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Server is up');
+  })
+  .listen(process.env.PORT || 5000, () => {
+    console.log('Server listening on port: ', process.env.PORT || 5000);
+  });
 
 setInterval(() => {
   // Keep-Alive Heroku App

@@ -47,7 +47,7 @@ export default class Email {
   }
 
   get sender() {
-    return this.payload.headers.find((item) => item.name === 'from');
+    return this.payload.headers.find((item) => item.name === 'from' || item.name === 'From');
   }
 
   get date() {

@@ -12,7 +12,7 @@
     "@types/telebot": "^1.2",
     "@types/uuid": "^3.4.1",
     "base64url": "^3.0.1",
-    "date-fns": "1.x",
+    "date-fns": "^2.28.0",
     "firebase-admin": "^10.0.1",
     "google-auth-library": "^0.10.0",
     "googleapis": "^92.0.0",

@@ -3,6 +3,7 @@ import { v4 as uuidV4 } from 'uuid';
 /* eslint-disable no-unused-vars */
 import Email from '../classes/Email';
 import { ParsedData } from '../typings/Interfaces';
+import { format } from 'date-fns';
 
 /* eslint-enable no-unused-vars */
 
@@ -38,6 +39,7 @@ function parse(email: Email) {
     strategy: strategy,
     sender: email.sender.value,
     date: email.date,
+    rentDate: parsedData.rentDate ?? format(new Date(email.date), 'dd/MM/yyyy HH:mm'),
   });
   if (Object.keys(parsedData).length && parsedData.total) {
     parsedData.uuid = uuidV4();

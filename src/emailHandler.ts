@@ -15,7 +15,7 @@ const isDev = process.env.dev === 'true';
 
 // let jwtClient: any;
 let pagesLoaded = 0;
-const MAX_DEV_PAGES = 1;
+const MAX_DEV_PAGES = 10;
 const checkNewEmails = async (user: any, client: any, pageToken?: string) => {
   try {
     const response = await emails.list({
@@ -71,7 +71,7 @@ async function handleNewMessage(client: any, messageId: string, user: any) {
     parseEmailBody(email);
     console.log(`User ${user.telegramId} - Email ${messageId} correctly parsed. Email received on ${email.date}}`);
     firebase.set(`emailIds/${email.id}`, email.parsedData);
-    if (isAfter(email.date, user.joined)) {
+    if (isAfter(new Date(email.date), new Date(user.joined))) {
       sendNotification(email.parsedData, user.telegramId);
     } else {
       console.log(`Notification to ${user.telegramId} about email ${email.id} not sent because is too old`);

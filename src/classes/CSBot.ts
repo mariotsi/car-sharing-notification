@@ -1,5 +1,5 @@
 import * as TeleBot from 'telebot';
-import * as distanceInWords from 'date-fns/distance_in_words';
+import { formatDistance } from 'date-fns';
 import * as oAuth from './oAuth';
 import * as firebase from './Firebase';
 import * as Users from './Users';
@@ -21,7 +21,7 @@ class Bot {
 
     this.bot.on('/uptime', (msg) => {
       this.sendMessage(
-        `I'm online since ${distanceInWords(new Date(), +new Date() - Math.floor(process.uptime()) * 1000, {
+        `I'm online since ${formatDistance(new Date(), +new Date() - Math.floor(process.uptime()) * 1000, {
           includeSeconds: true,
         })}`,
         msg.from.id

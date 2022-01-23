@@ -23,6 +23,7 @@ export type MapEntry = {
     type?: RegExp;
     totalTime?: RegExp;
     distance?: RegExp;
+    rentDate?: RegExp;
   };
   template: string;
   templateScooter?: string;

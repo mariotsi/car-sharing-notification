@@ -3,48 +3,26 @@
 import base64url from 'base64url';
 import * as http from 'http';
 import * as url from 'url';
-// import {parseKey} from './util';
 import * as querystring from 'querystring';
 import startUp from './polling';
-import codesHolder from './util/codesHolder';
+import codesHolder from './util/authCodesStore';
 import { v4 as uuidV4 } from 'uuid';
-/*
-const GoogleAuth = require('google-auth-library');
 
-const jwtPrivateKey = parseKey(process.env['JWT:privateKey']);
-// Initialize JWT Auth
-const auth = new GoogleAuth();
-const jwtClient = new auth.JWTClient(
-  process.env['JWT:clientEmail'],
-  null,
-  jwtPrivateKey,
-  // Scopes can be specified either as an array or as a single, space-delimited string
-  ['https://mail.google.com/'],
-  // User to impersonate (leave empty if no impersonation needed)
-  process.env['JWT:impersonate']
-);
-*/
 http
   .createServer(async function (req, res) {
-    const pathName = url.parse(req.url).pathname;
-    const query = querystring.parse('' + url.parse(req.url).query);
-    if (pathName === '/oauth_cb') {
+    const reqUrl = req.url ?? '';
+    const { pathname, query } = url.parse(reqUrl);
+    const qs = querystring.parse(query);
+    if (pathname === '/oauth_cb') {
       // https://core.telegram.org/bots#deep-linking
-      const key = uuidV4();
+      const authCodeKey = uuidV4();
       const telegramId = query.state;
-      codesHolder.set(key, telegramId + '|' + base64url.encode(query.code));
-      const redirectionTarget = `https://telegram.me/car_sharing_bot?start=${key}`;
+      codesHolder.set(authCodeKey, `${telegramId}|${base64url.encode(qs.code)}`);
+      const redirectionTarget = `https://telegram.me/car_sharing_bot?start=${authCodeKey}`;
       res.writeHead(302, {
         Location: redirectionTarget,
       });
-      console.log(redirectionTarget);
       res.end();
-      /* request.get(`https://telegram.me/car_sharing_bot?start=${query.code}`,{},(e,a)=>{
-              console.log(a);
-              res.end(`Server is up on ${req.headers.host} ${JSON.stringify(query)}`)
-
-            }
-            );*/
     }
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Server is up');
@@ -54,7 +32,7 @@ http
   });
 
 setInterval(() => {
-  // Keep-Alive Heroku App
+  // Keep-Alive Heroku App every 5 min
   http.get('http://car-sharing-notification.herokuapp.com/');
   console.log('Calling itself to keep the instance running.');
 }, 300000);

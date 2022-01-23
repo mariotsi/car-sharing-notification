@@ -1,11 +1,12 @@
 import * as db from './db';
 import bot from './CSBot';
-import * as oAuth from './oAuth';
+import OAuth from './OAuth';
+import User from './User';
 
 const users: Map<number, any> = new Map();
 
 async function loadUsers() {
-  const dbUsers: any[] = await db.getUsers();
+  const dbUsers: User[] = await db.getUsers();
   console.log('DB_USER', dbUsers);
   dbUsers.forEach((item) => users.set(Number(item.telegramId), item));
   /* users.set(Number(process.env['TELEGRAM:clientId']), {
@@ -29,7 +30,7 @@ async function getUser(telegramId: number) {
     }
     return users.get(telegramId);
   } catch (e) {
-    console.log('Error retrieving user ' + telegramId, e);
+    console.log(`Error retrieving user ${telegramId}`, e);
   }
 }
 
@@ -41,7 +42,7 @@ async function updateUser(user: any, updateInfo?: any) {
     await db.updateUser(user);
     users.set(Number(user.telegramId), user);
   } catch (e) {
-    console.log('Error updating user ' + user.telegramId, e);
+    console.log(`Error updating user ${user.telegramId}`, e);
   }
 }
 
@@ -58,7 +59,7 @@ async function handleStart(user: any) {
     return bot.sendMessage(`Welcome back ${localUser.firstName} 🎉`, localUser.telegramId);
     // TODO check if still authenticated
   }
-  await oAuth.authenticateUser(user);
+  await OAuth.authenticateUser(user);
 }
 
 export { loadUsers, users as list, getUser, updateUser, deactivate, handleStart };

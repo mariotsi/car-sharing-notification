@@ -1,34 +1,44 @@
 import checkNewEmails from './emailHandler';
-import * as oAuth from './classes/oAuth';
+import OAuth from './classes/OAuth';
 import * as Users from './classes/Users';
+import User from './classes/User';
 
-function chronTask() {
-  Users.list.forEach(async (v) => {
-    if (v.active) {
-      console.log(`Polling user ${v.telegramId}`);
-      if (v.tokens && v.tokens.access_token) {
-        console.log(`User ${v.telegramId}: authenticated, checking emails`);
-        // oAuth.setCredentials(v.telegramId, v.tokens);
-        await checkNewEmails(v, oAuth.getClient(v.telegramId, v.tokens));
-        console.log(`User ${v.telegramId}: all emails checked`);
-      } else if (!v.authInProgress) {
-        console.log(`User ${v.telegramId}: not authenticated, asking to reauth`);
-        oAuth.authenticateUser(v);
-      } else {
-        console.log(`User ${v.telegramId}: not authenticated, but auth in progress. Skipping`);
-      }
-    }
-  });
+const checkSingleUserEmail = async (user: User) => {
+  if (!user.active) {
+    console.log(`[${user.telegramId}] Inactive user.`);
+    return;
+  }
+
+  if (user.tokens?.access_token) {
+    console.log(`[${user.telegramId}] START Checking emails`);
+    await checkNewEmails(user, OAuth.getClient(user.telegramId, user.tokens));
+    console.log(`[${user.telegramId}] STOP Emails checked`);
+  } else if (!user.authInProgress) {
+    console.log(`[${user.telegramId}] Not authenticated. Asking to reauth`);
+    OAuth.authenticateUser(user);
+  } else {
+    console.log(`[${user.telegramId}] Not authenticated. Authentication floq in progress`);
+  }
+};
+
+async function chronTask() {
+  console.log('START Chron task');
+  await Array.from(Users.list).reduce(async (previousPromise, [, user]) => {
+    await previousPromise;
+    return checkSingleUserEmail(user);
+  }, Promise.resolve());
+
+  console.log('STOP Chron task');
+  scheduleChronTask();
 }
 
-function startChronTask() {
-  setInterval(chronTask, 30000);
+function scheduleChronTask() {
+  setTimeout(chronTask, 300000); // 5min
 }
 
 async function startUp() {
   await Users.loadUsers();
   chronTask();
-  startChronTask();
 }
 
 export default startUp;

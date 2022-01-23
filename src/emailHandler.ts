@@ -1,8 +1,8 @@
 import { parseEmailBody, emailsToFilter, fillTemplate } from './util';
 import { isAfter } from 'date-fns';
-import * as firebase from './classes/Firebase';
+import firebase from './classes/Firebase';
 import * as db from './classes/db';
-import * as oAuth from './classes/oAuth';
+import OAuth from './classes/OAuth';
 
 import { google, gmail_v1 as gmailTypes } from 'googleapis';
 const emails = google.gmail('v1').users.messages;
@@ -41,27 +41,35 @@ const checkNewEmails = async (user: any, client: any, pageToken?: string) => {
       (Object.keys(snapshot.val() || {}) || []).map((key) => firebase.localSavedIds.add(key));
       console.log('Local cache filled from firebase, from now on using it');
     }
-    await filterNewMessages(client, user, response.data.messages || [], response.data.nextPageToken);
+    await filterNewMessages(client, user, response.data.messages, response.data?.nextPageToken);
   } catch (e) {
-    console.log('Error checking new email: ' + e.code ? e.code + ' ' + e.message : e);
-    if (e.code == 401 || (e.code == 400 && e.message === 'invalid_request')) {
-      await oAuth.authenticateUser(user.telegramId, true);
+    const error = e as { code?: string; message: string };
+    console.log(`Error checking new email: ${error.code ? `${error.code} ${error.message}` : e}`);
+    if (`${error.code}` === `${401}` || (`${error.code}` == `${400}` && error.message === 'invalid_request')) {
+      await OAuth.authenticateUser(user.telegramId, true);
     }
   }
 };
 
-async function filterNewMessages(client: any, user: any, messages: gmailTypes.Schema$Message[], nextPageToken: string) {
-  await Promise.all(
-    messages.reduce((acc, { id }) => {
-      if (!firebase.localSavedIds.has(id)) {
-        // console.log('new message', message);
-        firebase.localSavedIds.add(id);
-        acc.push(handleNewMessage(client, id, user));
-      }
-      return acc;
-    }, [])
-  );
-  !!nextPageToken && checkNewEmails(user, client, nextPageToken);
+async function filterNewMessages(
+  client: any,
+  user: any,
+  messages: gmailTypes.Schema$Message[] = [],
+  nextPageToken: string | undefined | null
+) {
+  await messages.reduce(async (previousPromise, { id }) => {
+    await previousPromise;
+    let newPromise = Promise.resolve();
+    if (!!id && !firebase.localSavedIds.has(id)) {
+      firebase.localSavedIds.add(id);
+      newPromise = handleNewMessage(client, id, user);
+    }
+    return newPromise;
+  }, Promise.resolve());
+
+  if (nextPageToken) {
+    checkNewEmails(user, client, nextPageToken);
+  }
 }
 
 async function handleNewMessage(client: any, messageId: string, user: any) {
@@ -71,7 +79,7 @@ async function handleNewMessage(client: any, messageId: string, user: any) {
     parseEmailBody(email);
     console.log(`User ${user.telegramId} - Email ${messageId} correctly parsed. Email received on ${email.date}}`);
     firebase.set(`emailIds/${email.id}`, email.parsedData);
-    if (isAfter(new Date(email.date), new Date(user.joined))) {
+    if (email.parsedData?.total && isAfter(new Date(email.date), new Date(user.joined))) {
       sendNotification(email.parsedData, user.telegramId);
     } else {
       console.log(`Notification to ${user.telegramId} about email ${email.id} not sent because is too old`);
@@ -83,10 +91,12 @@ async function handleNewMessage(client: any, messageId: string, user: any) {
 
 const sendNotification = (parsedData: ParsedData, to: number) => {
   const message = fillTemplate(parsedData);
+  if (!message) {
+    return;
+  }
   parsedData.sent = new Date().toISOString();
   bot.sendMessage(message, to);
   db.addNotificationToUser(to, message, parsedData);
-  firebase.set(`emailIds/${parsedData.d}`, parsedData);
 };
 
 const getEmail = async (client: any, emailId: string, telegramId: number) => {
@@ -100,7 +110,7 @@ const getEmail = async (client: any, emailId: string, telegramId: number) => {
     });
     return new Email(data, telegramId);
   } catch (err) {
-    console.error('The API returned an error: ' + err);
+    console.error(`The API returned an error: ${err}`);
     firebase.set(`emailIds/${emailId}`, { error: 'Error retrieving email from Gmail' });
   }
 };

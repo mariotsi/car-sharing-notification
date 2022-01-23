@@ -1,7 +1,7 @@
 export type ParsedData = {
   longName?: string;
   id?: string;
-  strategy?: string;
+  strategy: string;
   sender?: string;
   date?: string;
   error?: string;
@@ -11,7 +11,7 @@ export type ParsedData = {
   type?: string;
   uuid?: string;
   sent?: string;
-  [name: string]: string;
+  [name: string]: string | undefined;
 };
 
 export type MapEntry = {
@@ -30,5 +30,5 @@ export type MapEntry = {
 };
 
 export type StrategyMap = {
-  [name: string]: MapEntry;
+  [name: string]: MapEntry | undefined;
 };

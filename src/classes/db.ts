@@ -1,10 +1,12 @@
 import { Collection, MongoClient } from 'mongodb';
 import { ParsedData } from '../typings/Interfaces';
+import { getEnvValue } from '../util';
+import User from './User';
 
-let usersColl: Collection;
+let usersColl: Collection<User>;
 // let messages;
 // Connection url
-const url = process.env.MONGODB_URI;
+const url = getEnvValue('MONGODB_URI');
 console.log(url);
 async function load() {
   try {
@@ -12,7 +14,7 @@ async function load() {
     await client.connect();
     const db = client.db();
     // console.log(await db.listCollections({}).toArray());
-    usersColl = db.collection('users');
+    usersColl = db.collection<User>('users');
     // messages = db.collection('messages');
   } catch (e) {
     console.log('Error connecting to Mongo', e);
@@ -33,6 +35,7 @@ export async function getUsers(telegramId?: number | boolean) {
     return await usersColl.find(query).toArray();
   } catch (e) {
     console.log('Error retrieving users', e);
+    return [];
   }
 }
 

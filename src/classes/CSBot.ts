@@ -1,25 +1,27 @@
 import * as TeleBot from 'telebot';
 import { formatDistance } from 'date-fns';
-import * as oAuth from './oAuth';
-import * as firebase from './Firebase';
+import OAuth from './OAuth';
+import firebase from './Firebase';
 import * as Users from './Users';
 import base64url from 'base64url';
-import codesHolder from '../util/codesHolder';
+import authCodesStore, { getEnvValue } from '../util';
 
 class Bot {
   private bot: TeleBot;
   private name: any;
 
-  constructor(token: string = process.env['TELEGRAM_token']) {
+  constructor(token: string) {
     this.bot = new TeleBot(token);
     this.bot.connect();
     this.getName();
 
     this.bot.on('/echo', (msg) => {
-      this.sendMessage(`Echo un cazzo!`, msg.from.id);
+      console.log(`[${msg.from.id}] Command /echo `);
+      this.sendMessage('Echo un cazzo!', msg.from.id);
     });
 
     this.bot.on('/uptime', (msg) => {
+      console.log(`[${msg.from.id}] Command /uptime `);
       this.sendMessage(
         `I'm online since ${formatDistance(new Date(), +new Date() - Math.floor(process.uptime()) * 1000, {
           includeSeconds: true,
@@ -29,19 +31,18 @@ class Bot {
     });
 
     this.bot.on('/update', async (msg) => {
+      console.log(`[${msg.from.id}] Command /update `);
       if (msg.from.id != process.env['TELEGRAM_clientId']) return;
       await updateIds();
       this.sendToMaster('Sincronizzazione con DB avvenuta');
     });
 
     this.bot.on('/start', async (msg) => {
-      console.log(`Received /start from ${msg.from.id}`);
-      const splittedMessage = msg.text.split(' ');
-      console.log('mmm', splittedMessage);
-      const recurringUser = !!(await Users.getUser(msg.from.id.telegramId));
-      if (splittedMessage.length === 1) {
-        console.log(`No token with the start command`);
-        // first time connecting, still not authenticated or reactivating old user
+      console.log(`[${msg.from.id}] Command /start `);
+      const [, authCodeKey] = msg.text.split(' ');
+      const isExistingUser = !!(await Users.getUser(msg.from.id.telegramId));
+      if (!authCodeKey) {
+        console.log(`[${msg.from.id}] First time connecting, still not authenticated or reactivating old user`);
         await Users.handleStart({
           telegramId: msg.from.id,
           firstName: msg.from.first_name,
@@ -50,22 +51,28 @@ class Bot {
           language: msg.from.language_code,
         });
       } else {
-        const key = splittedMessage[1];
-        const [telegramId, encodedCode] = codesHolder.get(key).split('|');
-        codesHolder.delete(key);
+        const authCode = authCodesStore.get(authCodeKey);
+        if (!authCode) {
+          console.error(`[${msg.from.id}] No AuthCode found with key ${authCodeKey}`);
+          return;
+        }
+        const [telegramId, encodedCode] = authCode.split('|');
+        authCodesStore.delete(authCodeKey);
         const code = base64url.decode(encodedCode);
-        console.log(`Received token ${code} owned from ${telegramId} and used by user ${msg.from.id}`);
-        if ('' + telegramId !== '' + msg.from.id) {
-          console.error(`${msg.from.id} was trying to use a code owned by ${telegramId}`);
+        if (`${telegramId}` !== `${msg.from.id}`) {
+          console.error(`[${msg.from.id}] User tried to use a AuthCode owned by ${telegramId}`);
           return;
         }
 
-        const newUser = await oAuth.getAndSaveTokens(code, msg.from.id);
-        !recurringUser && this.sendToMaster('New User: ' + JSON.stringify(newUser));
+        const newUser = await OAuth.getAndSaveTokens(code, msg.from.id);
+        if (!isExistingUser) {
+          this.sendToMaster(`New User: ${JSON.stringify(newUser)}`);
+        }
       }
     });
 
     this.bot.on('/stop', async (msg) => {
+      console.log(`[${msg.from.id}] Command /stop `);
       await Users.deactivate(msg.from.id);
       this.sendMessage(
         'You will not receive any other notification. In order to reactivate notifications type /start',
@@ -86,13 +93,16 @@ class Bot {
   }
 
   sendToMaster(message: string, options: any = { parseMode: 'HTML' }) {
-    this.bot.sendMessage(process.env['TELEGRAM:clientId'], message, options);
+    const masterId = process.env['TELEGRAM_masterId'];
+    if (masterId) {
+      this.bot.sendMessage(masterId, message, options);
+    }
   }
 
   async sendLoginMessage(telegramId: number, expired?: boolean) {
     try {
       const keyboard = this.bot.inlineKeyboard([
-        [this.bot.inlineButton('Login', { url: await oAuth.getOAuthUrl(telegramId) })],
+        [this.bot.inlineButton('Login', { url: await OAuth.getOAuthUrl(telegramId) })],
       ]);
       this.sendMessage(
         expired
@@ -106,7 +116,7 @@ class Bot {
         }
       );
     } catch (e) {
-      console.log('Cannot get oAuth url for this id: ' + telegramId);
+      console.log(`Cannot get oAuth url for this id: ${telegramId}`);
     }
   }
 }
@@ -115,10 +125,11 @@ async function updateIds() {
   console.log('FORCED - FORCED - Getting updated Ids from DB');
   const snapshot = await firebase.onceValue('emailIds');
   firebase.localSavedIds.clear();
-  (Object.keys(snapshot.val() || {}) || []).map((key) => firebase.localSavedIds.add(key));
+
+  Object.keys(snapshot.val() ?? {}).map(firebase.localSavedIds.add);
   console.log('FORCED - Local cache filled from firebase, from now on using it');
 }
 
-const bot = new Bot();
+const bot = new Bot(getEnvValue('TELEGRAM_token'));
 
 export default bot;

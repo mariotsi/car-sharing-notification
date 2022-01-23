@@ -71,16 +71,23 @@ Periodo: #rentDate#`,
 
 const fillTemplate = (context: ParsedData) => {
   if (!context) {
-    return 'Errore nel parseTemplate -> context null';
+    console.error('Errore nel parseTemplate -> context null');
+    return;
   }
-  let template = templates[context.strategy].template;
+
+  let template = templates[context.strategy]?.template;
+  if (!template) {
+    console.error('Errore nel parseTemplate -> template null', context.strategy, context.id);
+    return;
+  }
+
   if (context.total) {
     context.total = context.total.replace('.', ',');
   }
   for (const key of Object.keys(context)) {
-    template = template.replace(`#${key}#`, context[key]);
+    template = template.replace(`#${key}#`, context[key] ?? '');
   }
   return template;
 };
-const emailsToFilter = Array.from(new Set(Object.keys(templates).map((key) => templates[key].emailDomain || key)));
+const emailsToFilter = Array.from(new Set(Object.keys(templates).map((key) => templates[key]?.emailDomain || key)));
 export { templates, fillTemplate, emailsToFilter };
